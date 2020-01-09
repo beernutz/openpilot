@@ -423,7 +423,6 @@ class CarState():
       self.stock_hud = False
       self.stock_fcw = False
     else:
-      #self.stock_fcw = bool(cp_cam.vl["BRAKE_COMMAND"]["FCW"] != 0)
-      self.stock_fcw = False  # Disable stock FCW because it's too bloody sensitive
+      self.stock_fcw = bool(cp_cam.vl["BRAKE_COMMAND"]["FCW"] != 0)
       self.stock_hud = cp_cam.vl["ACC_HUD"]
       self.stock_brake = cp_cam.vl["BRAKE_COMMAND"]
