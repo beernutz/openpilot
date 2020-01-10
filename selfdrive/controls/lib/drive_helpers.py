@@ -35,7 +35,6 @@ class EventTypes:
   SOFT_DISABLE = 'softDisable'
   IMMEDIATE_DISABLE = 'immediateDisable'
   PERMANENT = 'permanent'
-  RESET_V_CRUISE = 'resetVCruise'
 
 
 def create_event(name, types):
