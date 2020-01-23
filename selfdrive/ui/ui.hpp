@@ -92,6 +92,8 @@ typedef struct UIScene {
   bool speedlimitahead_valid;
   bool speedlimit_valid;
   bool map_valid;
+  bool brakeLights;
+
 
   float curvature;
   int engaged;
@@ -165,6 +167,7 @@ typedef struct UIState {
   int img_turn;
   int img_face;
   int img_map;
+  int img_brake;
 
   // sockets
   Context *ctx;

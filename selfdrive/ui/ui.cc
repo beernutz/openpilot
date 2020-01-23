@@ -437,6 +437,10 @@ void handle_message(UIState *s, Message * msg) {
 
     s->scene.pa0 = datad.pa0;
     s->scene.freeSpace = datad.freeSpace;
+  } else if (eventd.which == cereal_Event_carState) {
+    struct cereal_CarState datad;
+    cereal_read_CarState(&datad, eventd.carState);
+    s->scene.brakeLights = datad.brakeLights;
   }
   capn_free(&ctx);
 }
