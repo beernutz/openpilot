@@ -114,6 +114,7 @@ static void ui_init(UIState *s) {
   s->livecalibration_sock = SubSocket::create(s->ctx, "liveCalibration");
   s->radarstate_sock = SubSocket::create(s->ctx, "radarState");
   s->thermal_sock = SubSocket::create(s->ctx, "thermal");
+  s->carstate_sock = SubSocket::create(s->ctx, "carState");
 
   assert(s->model_sock != NULL);
   assert(s->controlsstate_sock != NULL);
@@ -121,6 +122,7 @@ static void ui_init(UIState *s) {
   assert(s->livecalibration_sock != NULL);
   assert(s->radarstate_sock != NULL);
   assert(s->thermal_sock != NULL);
+  assert(s->carstate_sock != NULL);
 
   s->poller = Poller::create({
                               s->model_sock,
@@ -128,7 +130,8 @@ static void ui_init(UIState *s) {
                               s->uilayout_sock,
                               s->livecalibration_sock,
                               s->radarstate_sock,
-                              s->thermal_sock
+                              s->thermal_sock,
+			      s->carstate_sock
                              });
 
 #ifdef SHOW_SPEEDLIMIT

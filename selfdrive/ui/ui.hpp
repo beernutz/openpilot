@@ -178,6 +178,7 @@ typedef struct UIState {
   SubSocket *radarstate_sock;
   SubSocket *map_data_sock;
   SubSocket *uilayout_sock;
+  SubSocket *carstate_sock;  
   Poller * poller;
 
   int active_app;
