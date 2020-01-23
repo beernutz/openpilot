@@ -87,7 +87,7 @@ typedef struct UIScene {
   bool decel_for_model;
 
   float speedlimit;
-  //float angleSteers;
+  float angleSteers;
   float speedlimitaheaddistance;
   bool speedlimitahead_valid;
   bool speedlimit_valid;
