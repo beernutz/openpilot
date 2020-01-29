@@ -139,7 +139,7 @@ typedef struct UIScene {
 
   // dev ui
   float angleSteersDes;
-  float pa0;
+  int pa0;
   float freeSpace;
 
 } UIScene;
@@ -234,6 +234,8 @@ typedef struct UIState {
   int is_metric_timeout;
   int longitudinal_control_timeout;
   int limit_set_speed_timeout;
+  // for dev ui
+  int bat_temp_timeout;
 
   bool controls_seen;
 
