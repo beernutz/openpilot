@@ -402,7 +402,7 @@ static void ui_draw_world(UIState *s) {
       fillAlpha = (int)(fmin(fillAlpha, 255));
     }
     draw_chevron(s, scene->lead_d_rel+2.7, scene->lead_y_rel, 25,
-                  nvgRGBA(201, 34, 49, fillAlpha), nvgRGBA(218, 202, 37, 255));
+                  nvgRGBA(201, 34, 49, fillAlpha), nvgRGBA(255, 255, 255, 255));
   }
 }
 
@@ -679,7 +679,7 @@ static void ui_draw_vision_event(UIState *s) {
 static void ui_draw_vision_map(UIState *s) {
   const UIScene *scene = &s->scene;
   const int map_size = 96;
-  const int map_x = (scene->ui_viz_rx + (map_size * 3) + (bdr_is * 3));
+  const int map_x = (scene->ui_viz_rx + (map_size * 3) + (bdr_is * 4));
   const int map_y = (footer_y + ((footer_h - map_size) / 2));
   const int map_img_size = (map_size * 1.5);
   const int map_img_x = (map_x - (map_img_size / 2));
@@ -732,7 +732,7 @@ static void ui_draw_vision_face(UIState *s) {
 static void ui_draw_vision_brake(UIState *s) {
   const UIScene *scene = &s->scene;
   const int brake_size = 96;
-  const int brake_x = (scene->ui_viz_rx + (brake_size * 5) + (bdr_is * 4));
+  const int brake_x = (scene->ui_viz_rx + (brake_size * 5) + (bdr_is * 3));
   const int brake_y = (footer_y + ((footer_h - brake_size) / 2));
   const int brake_img_size = (brake_size * 1.5);
   const int brake_img_x = (brake_x - (brake_img_size / 2));
