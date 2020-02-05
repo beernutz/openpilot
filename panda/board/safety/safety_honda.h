@@ -125,7 +125,7 @@ static int honda_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       int gas_interceptor = GET_INTERCEPTOR(to_push);
       if ((gas_interceptor > HONDA_GAS_INTERCEPTOR_THRESHOLD) &&
           (gas_interceptor_prev <= HONDA_GAS_INTERCEPTOR_THRESHOLD)) {
-        controls_allowed = 0;
+        controls_allowed = 1;
       }
       gas_interceptor_prev = gas_interceptor;
     }
@@ -135,7 +135,7 @@ static int honda_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       if (addr == 0x17C) {
         int gas = GET_BYTE(to_push, 0);
         if (gas && !honda_gas_prev) {
-          controls_allowed = 0;
+          controls_allowed = 1;
         }
         honda_gas_prev = gas;
       }
@@ -197,8 +197,10 @@ static int honda_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
   // disallow actuator commands if gas or brake (with vehicle moving) are pressed
   // and the the latching controls_allowed flag is True
-  int pedal_pressed = honda_gas_prev || (gas_interceptor_prev > HONDA_GAS_INTERCEPTOR_THRESHOLD) ||
-                      (honda_brake_pressed_prev && honda_moving);
+  //int pedal_pressed = honda_gas_prev || (gas_interceptor_prev > HONDA_GAS_INTERCEPTOR_THRESHOLD) ||
+  //                    (honda_brake_pressed_prev && honda_moving);
+  int pedal_pressed = honda_gas_prev || && honda_moving;
+  
   bool current_controls_allowed = controls_allowed && !(pedal_pressed);
 
   // BRAKE: safety check
