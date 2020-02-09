@@ -30,10 +30,6 @@ CM BO_ STEERING_IPAS_COMMA "Copy of msg 614 so we can do angle control while the
 
  VAL_ 513 STATE 5 "FAULT_TIMEOUT" 4 "FAULT_STARTUP" 3 "FAULT_SCE" 2 "FAULT_SEND" 1 "FAULT_BAD_CHECKSUM" 0 "NO_FAULT" ;
 
- BO_ 515 JOEL_ID: 8 XXX
-  SG_ ACC_DISTANCE : 1|2@0+ (1,0) [1|3] "" XXX
-  SG_ LANE_WARNING : 8|1@0+ (1,0) [0|1] "" XXX
-  SG_ ACC_SLOW : 16|1@0+ (1,0) [0|1] "" XXX
 
 CM_ "Imported file _toyota_2017.dbc starts here"
 VERSION ""

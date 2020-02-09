@@ -162,7 +162,6 @@ if __name__ == "__main__":
   import cereal.messaging as messaging
   from selfdrive.car.vin import get_vin
 
-
   parser = argparse.ArgumentParser(description='Get firmware version of ECUs')
   parser.add_argument('--scan', action='store_true')
   parser.add_argument('--debug', action='store_true')
@@ -190,7 +189,8 @@ if __name__ == "__main__":
   print()
 
   t = time.time()
-  candidates, fw_vers = get_fw_versions(logcan, sendcan, 1, extra=extra, debug=args.debug, progress=True)
+  fw_vers = get_fw_versions(logcan, sendcan, 1, extra=extra, debug=args.debug, progress=True)
+  candidates = match_fw_to_car(fw_vers)
 
   print()
   print("Found FW versions")
@@ -199,7 +199,6 @@ if __name__ == "__main__":
     subaddr = None if version.subAddress == 0 else hex(version.subAddress)
     print(f"  (Ecu.{version.ecu}, {hex(version.address)}, {subaddr}): [{version.fwVersion}]")
   print("}")
-
 
   print()
   print("Possible matches:", candidates)
