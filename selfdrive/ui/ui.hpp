@@ -144,7 +144,6 @@ typedef struct UIScene {
   bool steerOverride;
   float output_scale;
   
-  //clarity-bru
   int odometer;
   int engineRPM;
   float tripDistance;
@@ -206,9 +205,8 @@ typedef struct UIState {
   SubSocket *radarstate_sock;
   SubSocket *map_data_sock;
   SubSocket *uilayout_sock;
-  SubSocket *carstate_sock;  
-  SubSocket *gpslocation_sock;  
-  SubSocket *gpslocationexternal_sock;  
+  SubSocket *carstate_sock;
+  SubSocket *gpslocationexternal_sock;
   SubSocket *livempc_sock;  
   Poller * poller;
 

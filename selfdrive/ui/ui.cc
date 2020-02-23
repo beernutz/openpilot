@@ -136,9 +136,8 @@ static void ui_init(UIState *s) {
                               s->livecalibration_sock,
                               s->radarstate_sock,
 	                            s->carstate_sock,
-	                            s->gpslocation_sock,
-	                            s->gpslocationexternal_sock,
-	                            s->livempc_sock
+                              s->gpslocationexternal_sock,
+                              s->livempc_sock
                              });
 
   /*
