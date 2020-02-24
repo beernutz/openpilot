@@ -18,31 +18,6 @@ extern "C"{
 }
 
 
-////Clarity-bru
-//uptime
-time_t driveStartedTime;
-bool driveStarted = 0;
-
-//TripDistance
-float engineOnTripDistance = 0;
-float engineOffTripDistance = 0;
-float currentTripDistance = 0;
-float previousTripDistance = 0;
-int tripDistanceCycles = 0;
-float netTripDistance = 0;
-
-//engine stuff
-void logEngineEvent(bool isEngineOn, int odometer, float tripDistance, int maxRPM);
-int maxRPM = 0;
-bool isEngineOn = 0;
-int engineOnCount = 0;
-
-//compass
-char direction[3] = "";
-
-
-//End of clarity-bru
-
 
 // TODO: this is also hardcoded in common/transformations/camera.py
 const mat3 intrinsic_matrix = (mat3){{
@@ -446,11 +421,12 @@ static void ui_draw_world(UIState *s) {
   if (!scene->world_objects_visible) {
     return;
   }
-  
+  /*
   if(!driveStarted){
     driveStarted = 1;
     driveStartedTime= time(NULL);
   }
+  */
 
   // Draw lane edges and vision/mpc tracks
   ui_draw_vision_lanes(s);
@@ -683,14 +659,14 @@ static void ui_draw_vision_speed(UIState *s) {
   }
   
   
-  
+  /*
   //uptime
   nvgBeginPath(s->vg);
   nvgFontFace(s->vg, "sans-bold");
   nvgFontSize(s->vg, 45);
 
   time_t currentTime = time(NULL);
-  time_t upTime = currentTime - driveStartedTime;
+  //time_t upTime = currentTime - driveStartedTime;
 
   int seconds = upTime%60;
   int minutes = (upTime/60)%60;
@@ -701,7 +677,7 @@ static void ui_draw_vision_speed(UIState *s) {
   upTimeStr[9] = '\0';
 
   nvgText(s->vg, 145, 32, upTimeStr, NULL);
-  
+  */
   
   //Debuging.  Y-values should be 30 pixels apart
   
@@ -776,6 +752,7 @@ static void ui_draw_vision_speed(UIState *s) {
   
   
   //Compass
+  /*
   if((scene->bearingUblox >= 337.5) || (scene->bearingUblox < 22.5)){
 	sprintf(direction,"%s", "N" );
   } else if ((scene->bearingUblox >= 22.5) && (scene->bearingUblox < 67.5)){
@@ -803,6 +780,7 @@ static void ui_draw_vision_speed(UIState *s) {
   
   direction[2] = '\0';
   nvgText(s->vg, viz_speed_x+viz_speed_w/2, 70, direction, NULL);
+  */
 }
 
 static void ui_draw_vision_event(UIState *s) {
@@ -1125,7 +1103,9 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
         value_fontSize, label_fontSize, uom_fontSize );
     bb_ry = bb_y + bb_h;
   }
-    //add grey panda GPS accuracy
+  
+  /*  
+  //add grey panda GPS accuracy
   if (true) {
     char val_str[16];
     char uom_str[3];
@@ -1146,6 +1126,7 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
         value_fontSize, label_fontSize, uom_fontSize );
     bb_ry = bb_y + bb_h;
   }
+  */
   //add grey panda GPS accuracy
   /*if (true) {
     char val_str[16];
@@ -1168,6 +1149,7 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
     bb_ry = bb_y + bb_h;
   }*/
 
+  /*
     //add altitude
   if (true) {
     char val_str[16];
@@ -1183,6 +1165,7 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
         value_fontSize, label_fontSize, uom_fontSize );
     bb_ry = bb_y + bb_h;
   }
+  */
   //add free space - from bthaler1
   /*
   if (true) {
@@ -1345,7 +1328,7 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
     bb_ry = bb_y + bb_h;
   }
 
-
+  /*
   //engineRPM
   if (true) {
     char val_str[16];
@@ -1359,6 +1342,7 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
         value_fontSize, label_fontSize, uom_fontSize );
     bb_ry = bb_y + bb_h;
   }
+  */
   //finally draw the frame
   bb_h += 20;
   nvgBeginPath(s->vg);
@@ -1382,7 +1366,7 @@ static void bb_ui_draw_UI(UIState *s)
   bb_ui_draw_measures_right(s, bb_dml_x, bb_dml_y, bb_dml_w);
   bb_ui_draw_measures_left(s, bb_dmr_x, bb_dmr_y, bb_dmr_w);
   
-  
+    /* 
     //Code for logging (should be moved to another file?)
     if(scene->engineRPM > 0){
       if(isEngineOn == 0){
@@ -1413,12 +1397,14 @@ static void bb_ui_draw_UI(UIState *s)
       isEngineOn = 0;
       maxRPM = 0;
     }
+    */
 }
 //BB END: functions added for the display of various items
 
 
 void logEngineEvent(bool EngineOn, int odometer, float tripDistance, int maxRPM)
 {
+  /*
   //Create Clarity folder if it doesn't exist
   struct stat st = {0};
   if(stat("/data/clarity", &st) == -1){
@@ -1467,6 +1453,7 @@ void logEngineEvent(bool EngineOn, int odometer, float tripDistance, int maxRPM)
   }
   fclose(out);
   tripDistanceCycles = 0;
+  */
 }
 
 
@@ -1595,6 +1582,7 @@ static void ui_draw_vision(UIState *s) {
 }
 
 void resetTripDistanceVariables(){
+  /*
   driveStarted = 0;
   engineOnTripDistance = 0;
   engineOffTripDistance = 0;
@@ -1603,12 +1591,15 @@ void resetTripDistanceVariables(){
   netTripDistance = 0;
   tripDistanceCycles = 0;
   engineOnCount = 0;
+  */
 }
 
 static void ui_draw_blank(UIState *s) {
+  /*
   if(driveStarted){
     resetTripDistanceVariables();
   }
+  */
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
