@@ -688,7 +688,7 @@ static void ui_draw_vision_speed(UIState *s) {
   nvgFontSize(s->vg, 50);
   //nvgText(s->vg, 145, 32, ".", NULL);//offset from uptime()
 
-
+  /*
   nvgText(s->vg, 260, 50, "gpsAcurracy:", NULL);
   sprintf(buffer,"%.2f | %.2f", scene->gpsAccuracyPhone, scene->gpsAccuracyUblox );
   buffer[15] = '\0';
@@ -719,10 +719,6 @@ static void ui_draw_vision_speed(UIState *s) {
   sprintf(buffer,"%.3f", scene->output_scale);
   buffer[15] = '\0';
   nvgText(s->vg, 550, 220, buffer, NULL);
-  
-  
-
-  /*
 
   nvgText(s->vg, 260, 200, "previousTripDistance:", NULL);
   sprintf(buffer,"%.2f", previousTripDistance);
@@ -747,12 +743,10 @@ static void ui_draw_vision_speed(UIState *s) {
   nvgText(s->vg, 260, 350, "odometer (.6211):", NULL);
   sprintf(buffer,"%.2f", scene->odometer*.6211);
   buffer[11] = '\0';
-  nvgText(s->vg, 700, 350, buffer, NULL);
-  */
+  nvgText(s->vg, 700, 350, buffer, NULL)
   
   
   //Compass
-  /*
   if((scene->bearingUblox >= 337.5) || (scene->bearingUblox < 22.5)){
 	sprintf(direction,"%s", "N" );
   } else if ((scene->bearingUblox >= 22.5) && (scene->bearingUblox < 67.5)){
@@ -1055,7 +1049,7 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
     close(fd);
 
 
-    snprintf(val_str, sizeof(val_str), "%s°C", bat_temp);
+    snprintf(val_str, sizeof(val_str), "%d°C", atoi(bat_temp)+7);
     snprintf(uom_str, sizeof(uom_str), "");
     bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "BAT TEMP",
         bb_rx, bb_ry, bb_uom_dx,
