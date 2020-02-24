@@ -1,4 +1,9 @@
 #include <assert.h>
+#include <sys/types.h>//clarity-bru: files
+#include <sys/stat.h>//clarity-bru: files
+#include <time.h>//clarity-bru: time
+#include <string.h>//clarity-bru: strcpy
+#include <unistd.h>//clarity-bru: files
 #include "ui.hpp"
 
 #include "common/util.h"
@@ -12,6 +17,33 @@ extern "C"{
 #include "common/glutil.h"
 }
 
+
+////Clarity-bru
+//uptime
+time_t driveStartedTime;
+bool driveStarted = 0;
+
+//TripDistance
+float engineOnTripDistance = 0;
+float engineOffTripDistance = 0;
+float currentTripDistance = 0;
+float previousTripDistance = 0;
+int tripDistanceCycles = 0;
+float netTripDistance = 0;
+
+//engine stuff
+void logEngineEvent(bool isEngineOn, int odometer, float tripDistance, int maxRPM);
+int maxRPM = 0;
+bool isEngineOn = 0;
+int engineOnCount = 0;
+
+//compass
+char direction[3] = "";
+
+
+//End of clarity-bru
+
+
 // TODO: this is also hardcoded in common/transformations/camera.py
 const mat3 intrinsic_matrix = (mat3){{
   910., 0., 582.,
@@ -22,8 +54,8 @@ const mat3 intrinsic_matrix = (mat3){{
 const uint8_t alert_colors[][4] = {
   [STATUS_STOPPED] = {0x07, 0x23, 0x39, 0xf1},
   [STATUS_DISENGAGED] = {0x17, 0x33, 0x49, 0xc8},
-  [STATUS_ENGAGED] = {0x17, 0x86, 0x44, 0xf1},
-  [STATUS_WARNING] = {0xDA, 0x6F, 0x25, 0xf1},
+  [STATUS_ENGAGED] = {0x17, 0x86, 0x44, 0x01},
+  [STATUS_WARNING] = {0xDA, 0x6F, 0x25, 0x01},
   [STATUS_ALERT] = {0xC9, 0x22, 0x31, 0xf1},
 };
 
@@ -239,6 +271,34 @@ const UIScene *scene = &s->scene;
 
   NVGpaint track_bg;
   if (is_mpc) {
+    // Draw colored MPC track Kegman's
+    if (scene->steerOverride) {
+      track_bg = nvgLinearGradient(s->vg, vwp_w, vwp_h, vwp_w, vwp_h*.4,
+        nvgRGBA(0, 191, 255, 255), nvgRGBA(0, 95, 128, 50));
+    } else {
+      const uint8_t *clr = bg_colors[s->status];
+      int torque_scale = (int)fabs(510*(float)s->scene.output_scale);
+      int red_lvl = fmin(255, torque_scale);
+      int green_lvl = fmin(255, 510-torque_scale);
+      int alpha_lvl= fmin(255, 510-torque_scale);
+      track_bg = nvgLinearGradient(s->vg, vwp_w, vwp_h, vwp_w, vwp_h*.4,
+      nvgRGBA(100, 100, 100, 120), nvgRGBA(100, 100, 100, 60));
+      //nvgRGBA(clr[0], clr[1], clr[2], 80), nvgRGBA(clr[0], clr[1], clr[2], 10));
+      /*
+      track_bg = nvgLinearGradient(s->vg, vwp_w, vwp_h, vwp_w, vwp_h*.4,
+        nvgRGBA(          red_lvl,            green_lvl,  0, 255),
+        nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
+      */
+    }
+  } else {
+    // Draw white vision track
+    track_bg = nvgLinearGradient(s->vg, vwp_w, vwp_h, vwp_w, vwp_h*.4,
+      nvgRGBA(255, 255, 255, 200), nvgRGBA(255, 255, 255, 50));
+  }
+  
+  //Standard MPC
+  /*
+  if (is_mpc) {
     // Draw colored MPC track
     const uint8_t *clr = bg_colors[s->status];
     track_bg = nvgLinearGradient(s->vg, vwp_w, vwp_h, vwp_w, vwp_h*.4,
@@ -248,6 +308,7 @@ const UIScene *scene = &s->scene;
     track_bg = nvgLinearGradient(s->vg, vwp_w, vwp_h, vwp_w, vwp_h*.4,
       nvgRGBA(255, 255, 255, 255), nvgRGBA(255, 255, 255, 0));
   }
+  */
 
   nvgFillPaint(s->vg, track_bg);
   nvgFill(s->vg);
@@ -385,6 +446,11 @@ static void ui_draw_world(UIState *s) {
   if (!scene->world_objects_visible) {
     return;
   }
+  
+  if(!driveStarted){
+    driveStarted = 1;
+    driveStartedTime= time(NULL);
+  }
 
   // Draw lane edges and vision/mpc tracks
   ui_draw_vision_lanes(s);
@@ -479,7 +545,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   } else {
     nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 100));
   }
-  nvgText(s->vg, viz_maxspeed_x+(viz_maxspeed_xo/2)+(viz_maxspeed_w/2), 148, "MAX", NULL);
+  nvgText(s->vg, viz_maxspeed_x+(viz_maxspeed_xo/2)+(viz_maxspeed_w/2), 118, "MAX", NULL);
 
   // Draw Speed Text
   nvgFontFace(s->vg, "sans-bold");
@@ -487,12 +553,12 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   if (is_cruise_set) {
     snprintf(maxspeed_str, sizeof(maxspeed_str), "%d", maxspeed_calc);
     nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-    nvgText(s->vg, viz_maxspeed_x+(viz_maxspeed_xo/2)+(viz_maxspeed_w/2), 242, maxspeed_str, NULL);
+    nvgText(s->vg, viz_maxspeed_x+(viz_maxspeed_xo/2)+(viz_maxspeed_w/2), 212, maxspeed_str, NULL);
   } else {
     nvgFontFace(s->vg, "sans-semibold");
     nvgFontSize(s->vg, 42*2.5);
     nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 100));
-    nvgText(s->vg, viz_maxspeed_x+(viz_maxspeed_xo/2)+(viz_maxspeed_w/2), 242, "-", NULL);
+    nvgText(s->vg, viz_maxspeed_x+(viz_maxspeed_xo/2)+(viz_maxspeed_w/2), 212, "-", NULL);
   }
 
 }
@@ -615,6 +681,128 @@ static void ui_draw_vision_speed(UIState *s) {
   } else {
     nvgText(s->vg, viz_speed_x+viz_speed_w/2, 320, "mph", NULL);
   }
+  
+  
+  
+  //uptime
+  nvgBeginPath(s->vg);
+  nvgFontFace(s->vg, "sans-bold");
+  nvgFontSize(s->vg, 45);
+
+  time_t currentTime = time(NULL);
+  time_t upTime = currentTime - driveStartedTime;
+
+  int seconds = upTime%60;
+  int minutes = (upTime/60)%60;
+  int hours = upTime/3600;
+
+  char upTimeStr[10] = "";
+  sprintf(upTimeStr, "%02i:%02i:%02i", hours, minutes, seconds); 
+  upTimeStr[9] = '\0';
+
+  nvgText(s->vg, 145, 32, upTimeStr, NULL);
+  
+  
+  //Debuging.  Y-values should be 30 pixels apart
+  
+  char buffer[20] = "";
+  //nvgBeginPath(s->vg);
+  nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_BASELINE);
+  nvgFontFace(s->vg, "sans-regular");
+  nvgFontSize(s->vg, 50);
+  //nvgText(s->vg, 145, 32, ".", NULL);//offset from uptime()
+
+
+  nvgText(s->vg, 260, 50, "gpsAcurracy:", NULL);
+  sprintf(buffer,"%.2f | %.2f", scene->gpsAccuracyPhone, scene->gpsAccuracyUblox );
+  buffer[15] = '\0';
+  nvgText(s->vg, 550, 50, buffer, NULL);
+
+  nvgText(s->vg, 260, 80, "altitude:", NULL);
+  sprintf(buffer,"%.2f | %.2f", scene->altitudePhone, scene->altitudeUblox );
+  buffer[15] = '\0';
+  nvgText(s->vg, 550, 80, buffer, NULL);
+
+  nvgText(s->vg, 260, 110, "speed m/s:", NULL);
+  sprintf(buffer,"%.2f | %.2f", scene->speedPhone, scene->speedUblox );
+  buffer[15] = '\0';
+  nvgText(s->vg, 550, 110, buffer, NULL);
+
+  nvgText(s->vg, 260, 140, "speed MPH:", NULL);
+  sprintf(buffer,"%.2f | %.2f", scene->speedPhone * 2.237, scene->speedUblox * 2.237);
+  buffer[15] = '\0';
+  nvgText(s->vg, 550, 140, buffer, NULL);
+
+
+  nvgText(s->vg, 260, 180, "bearing:", NULL);
+  sprintf(buffer,"%.2f | %.2f", scene->bearingPhone, scene->bearingUblox );
+  buffer[15] = '\0';
+  nvgText(s->vg, 550, 180, buffer, NULL);
+
+  nvgText(s->vg, 260, 220, "output_scale:", NULL);
+  sprintf(buffer,"%.3f", scene->output_scale);
+  buffer[15] = '\0';
+  nvgText(s->vg, 550, 220, buffer, NULL);
+  
+  
+
+  /*
+
+  nvgText(s->vg, 260, 200, "previousTripDistance:", NULL);
+  sprintf(buffer,"%.2f", previousTripDistance);
+  buffer[4] = '\0';
+  nvgText(s->vg, 700, 200, buffer, NULL);
+
+  nvgText(s->vg, 260, 230, "tripDistanceCycles:", NULL);
+  sprintf(buffer,"%d", tripDistanceCycles);
+  buffer[4] = '\0';
+  nvgText(s->vg, 700, 230, buffer, NULL);
+
+  nvgText(s->vg, 260, 290, "netTripDistance:", NULL);
+  sprintf(buffer,"%.2f", netTripDistance);
+  buffer[4] = '\0';
+  nvgText(s->vg, 700, 290, buffer, NULL);
+
+  nvgText(s->vg, 260, 320, "odometer:", NULL);
+  sprintf(buffer,"%i", scene->odometer);
+  buffer[7] = '\0';
+  nvgText(s->vg, 700, 320, buffer, NULL);
+
+  nvgText(s->vg, 260, 350, "odometer (.6211):", NULL);
+  sprintf(buffer,"%.2f", scene->odometer*.6211);
+  buffer[11] = '\0';
+  nvgText(s->vg, 700, 350, buffer, NULL);
+  */
+  
+  
+  //Compass
+  if((scene->bearingUblox >= 337.5) || (scene->bearingUblox < 22.5)){
+	sprintf(direction,"%s", "N" );
+  } else if ((scene->bearingUblox >= 22.5) && (scene->bearingUblox < 67.5)){
+    sprintf(direction,"%s", "NE" );
+  } else if ((scene->bearingUblox >= 67.5) && (scene->bearingUblox < 112.5)){
+    sprintf(direction,"%s", "E" );
+  } else if ((scene->bearingUblox >= 112.5) && (scene->bearingUblox < 157.5)){
+    sprintf(direction,"%s", "SE" );
+  } else if ((scene->bearingUblox >= 157.5) && (scene->bearingUblox < 202.5)){
+    sprintf(direction,"%s", "S" );
+  } else if ((scene->bearingUblox >= 202.5) && (scene->bearingUblox < 247.5)){
+    sprintf(direction,"%s", "SW" );
+  } else if ((scene->bearingUblox >= 247.5) && (scene->bearingUblox < 292.5)){
+    sprintf(direction,"%s", "W" );
+  } else if ((scene->bearingUblox >= 292.5) && (scene->bearingUblox < 337.5)){
+    sprintf(direction,"%s", "NW" );
+  } else {
+    sprintf(direction,"%s", "--" );
+  } 
+  
+  nvgBeginPath(s->vg);
+  nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
+  nvgFontFace(s->vg, "sans-regular");
+  nvgFontSize(s->vg, 100);
+  
+  direction[2] = '\0';
+  nvgText(s->vg, viz_speed_x+viz_speed_w/2, 70, direction, NULL);
 }
 
 static void ui_draw_vision_event(UIState *s) {
@@ -674,12 +862,12 @@ static void ui_draw_vision_event(UIState *s) {
 
 static void ui_draw_vision_map(UIState *s) {
   const UIScene *scene = &s->scene;
-  const int map_size = 96;
+  const int map_size = 88;
   const int map_x = (scene->ui_viz_rx + (map_size * 3) + (bdr_is * 4));
   const int map_y = (footer_y + ((footer_h - map_size) / 2));
   const int map_img_size = (map_size * 1.5);
   const int map_img_x = (map_x - (map_img_size / 2));
-  const int map_img_y = (map_y - (map_size / 4));
+  const int map_img_y = (map_y - (map_size / 4) + 25);
 
   bool map_valid = s->scene.map_valid;
   float map_img_alpha = map_valid ? 1.0f : 0.15f;
@@ -689,7 +877,7 @@ static void ui_draw_vision_map(UIState *s) {
     map_img_size, map_img_size, 0, s->img_map, map_img_alpha);
 
   nvgBeginPath(s->vg);
-  nvgCircle(s->vg, map_x, (map_y + (bdr_is * 1.5)), map_size);
+  nvgCircle(s->vg, map_x, (map_y + (bdr_is * 1.5) + 25), map_size);
   nvgFillColor(s->vg, map_bg);
   nvgFill(s->vg);
 
@@ -701,12 +889,12 @@ static void ui_draw_vision_map(UIState *s) {
 
 static void ui_draw_vision_face(UIState *s) {
   const UIScene *scene = &s->scene;
-  const int face_size = 96;
+  const int face_size = 88;
   const int face_x = (scene->ui_viz_rx + face_size + (bdr_is * 2));
   const int face_y = (footer_y + ((footer_h - face_size) / 2));
   const int face_img_size = (face_size * 1.5);
   const int face_img_x = (face_x - (face_img_size / 2));
-  const int face_img_y = (face_y - (face_size / 4));
+  const int face_img_y = (face_y - (face_size / 4) + 25);
   float face_img_alpha = scene->monitoring_active ? 1.0f : 0.15f;
   float face_bg_alpha = scene->monitoring_active ? 0.3f : 0.1f;
   NVGcolor face_bg = nvgRGBA(0, 0, 0, (255 * face_bg_alpha));
@@ -714,7 +902,7 @@ static void ui_draw_vision_face(UIState *s) {
     face_img_size, face_img_size, 0, s->img_face, face_img_alpha);
 
   nvgBeginPath(s->vg);
-  nvgCircle(s->vg, face_x, (face_y + (bdr_is * 1.5)), face_size);
+  nvgCircle(s->vg, face_x, (face_y + (bdr_is * 1.5) + 25), face_size);
   nvgFillColor(s->vg, face_bg);
   nvgFill(s->vg);
 
@@ -727,12 +915,12 @@ static void ui_draw_vision_face(UIState *s) {
 
 static void ui_draw_vision_brake(UIState *s) {
   const UIScene *scene = &s->scene;
-  const int brake_size = 96;
+  const int brake_size = 88;
   const int brake_x = (scene->ui_viz_rx + (brake_size * 5) + (bdr_is * 3));
   const int brake_y = (footer_y + ((footer_h - brake_size) / 2));
   const int brake_img_size = (brake_size * 1.5);
   const int brake_img_x = (brake_x - (brake_img_size / 2));
-  const int brake_img_y = (brake_y - (brake_size / 4));
+  const int brake_img_y = (brake_y - (brake_size / 4) + 25);
 
   bool brake_valid = scene->brakeLights;
   float brake_img_alpha = brake_valid ? 1.0f : 0.15f;
@@ -742,7 +930,7 @@ static void ui_draw_vision_brake(UIState *s) {
     brake_img_size, brake_img_size, 0, s->img_brake, brake_img_alpha);
 
   nvgBeginPath(s->vg);
-  nvgCircle(s->vg, brake_x, (brake_y + (bdr_is * 1.5)), brake_size);
+  nvgCircle(s->vg, brake_x, (brake_y + (bdr_is * 1.5) + 25), brake_size);
   nvgFillColor(s->vg, brake_bg);
   nvgFill(s->vg);
 
@@ -824,19 +1012,33 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
   int bb_uom_dx =  (int)(bb_w /2 - uom_fontSize*2.5) ;
 
   //add CPU temperature
-  /*
+
+  
   if (true) {
         char val_str[16];
     char uom_str[6];
     NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
-      if((int)(scene->maxCpuTemp/10) > 80) {
-        val_color = nvgRGBA(255, 188, 3, 200);
-      }
-      if((int)(scene->maxCpuTemp/10) > 92) {
-        val_color = nvgRGBA(255, 0, 0, 200);
-      }
+
+    char cpu_temp[5];
+    int fd;
+
+    //Read the file with the CPU temp.  1 is equal to .1 degree Celius.
+    fd = open("/sys/class/thermal/thermal_zone6/temp", O_RDONLY);
+    if(fd == -1)
+    {
+    //can't open
+    }
+    else
+    {
+      read(fd, &cpu_temp, 4);
+    }
+  
+  
+    cpu_temp[2] = '\0';
+    close(fd);
+  
       // temp is alway in C * 10
-      snprintf(val_str, sizeof(val_str), "%d°C", (int)(scene->maxCpuTemp/10));
+      snprintf(val_str, sizeof(val_str), "%s°C", (cpu_temp));
       snprintf(uom_str, sizeof(uom_str), "");
     bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "CPU TEMP",
         bb_rx, bb_ry, bb_uom_dx,
@@ -844,13 +1046,15 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
         value_fontSize, label_fontSize, uom_fontSize );
     bb_ry = bb_y + bb_h;
   }
-  */
 
-   //add battery temperature
-  /*
+
+   //clarity-bru add battery temperature
+  
   if (true) {
     char val_str[16];
     char uom_str[6];
+    char bat_temp[5] = "";
+    int fd;
     NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
     if (s->scene.pa0 > 50) {
       val_color = nvgRGBA(255, 0, 0, 200);
@@ -858,7 +1062,22 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
       val_color = nvgRGBA(255, 188, 3, 200);
     }
 
-    snprintf(val_str, sizeof(val_str), "%2.0f°C", s->scene.pa0);
+    //Read the file with the battery temp.  1 is equal to .1 degree Celius.
+    fd = open("/sys/class/power_supply/battery/subsystem/battery/temp", O_RDONLY);
+    if(fd == -1)
+    {
+      //can't open
+    }
+    else
+    {
+      read(fd, &bat_temp, 4);
+    }
+     bat_temp[2] = '\0';
+    
+    close(fd);
+
+
+    snprintf(val_str, sizeof(val_str), "%s°C", bat_temp);
     snprintf(uom_str, sizeof(uom_str), "");
     bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "BAT TEMP",
         bb_rx, bb_ry, bb_uom_dx,
@@ -866,8 +1085,67 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
         value_fontSize, label_fontSize, uom_fontSize );
     bb_ry = bb_y + bb_h;
   }
-  */
+  
+  
+    if(true) {
+    char val_str[16];
+    char uom_str[6];
+    char bat_lvl[4] = "";
+    NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
+    int fd;
+  
+    //Read the file with the battery level.  Not expecting anything above 100%
+    fd = open("/sys/class/power_supply/battery/capacity", O_RDONLY);
+    if(fd == -1)
+    {
+      //can't open
+    }
+    else
+    {
+      read(fd, &bat_lvl, 3);
+    }
 
+    //clean up the last char (wierd rectangle symbol) in the line
+    for (int i=1; i<4; i++)
+    {
+      //if char is not a digit then replace it with null
+      if(isdigit(bat_lvl[i]) == 0)
+          {
+            bat_lvl[i] = '\0';
+            break;
+          }
+    }
+    close(fd);
+
+    snprintf(val_str, sizeof(val_str), "%s%%", bat_lvl);
+    snprintf(uom_str, sizeof(uom_str), "");
+    bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "BAT LVL",
+        bb_rx, bb_ry, bb_uom_dx,
+        val_color, lab_color, uom_color,
+        value_fontSize, label_fontSize, uom_fontSize );
+    bb_ry = bb_y + bb_h;
+  }
+    //add grey panda GPS accuracy
+  if (true) {
+    char val_str[16];
+    char uom_str[3];
+    NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
+    //show red/orange if gps accuracy is high
+      if(scene->gpsAccuracyUblox > 0.59) {
+         val_color = nvgRGBA(255, 188, 3, 200);
+      }
+      if(scene->gpsAccuracyUblox > 0.8) {
+         val_color = nvgRGBA(255, 0, 0, 200);
+      }
+    // gps accuracy is always in meters
+    snprintf(val_str, sizeof(val_str), "%.2f", (s->scene.gpsAccuracyUblox));
+    snprintf(uom_str, sizeof(uom_str), "m");;
+    bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "GPS PREC",
+        bb_rx, bb_ry, bb_uom_dx,
+        val_color, lab_color, uom_color,
+        value_fontSize, label_fontSize, uom_fontSize );
+    bb_ry = bb_y + bb_h;
+  }
   //add grey panda GPS accuracy
   /*if (true) {
     char val_str[16];
@@ -890,6 +1168,21 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
     bb_ry = bb_y + bb_h;
   }*/
 
+    //add altitude
+  if (true) {
+    char val_str[16];
+    char uom_str[3];
+    NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
+
+
+    snprintf(val_str, sizeof(val_str), "%.2f", (s->scene.altitudeUblox));
+    snprintf(uom_str, sizeof(uom_str), "m");;
+    bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "ALTITUDE",
+        bb_rx, bb_ry, bb_uom_dx,
+        val_color, lab_color, uom_color,
+        value_fontSize, label_fontSize, uom_fontSize );
+    bb_ry = bb_y + bb_h;
+  }
   //add free space - from bthaler1
   /*
   if (true) {
@@ -915,7 +1208,7 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
     bb_ry = bb_y + bb_h;
   }
   
-
+  */
   //finally draw the frame
   bb_h += 20;
   nvgBeginPath(s->vg);
@@ -923,7 +1216,7 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
   nvgStrokeColor(s->vg, nvgRGBA(255,255,255,80));
   nvgStrokeWidth(s->vg, 6);
   nvgStroke(s->vg);
-  */
+
 }
 
 
@@ -1053,6 +1346,19 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
   }
 
 
+  //engineRPM
+  if (true) {
+    char val_str[16];
+    char uom_str[4];
+    NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
+    snprintf(val_str, sizeof(val_str), "%d", (s->scene.engineRPM));
+    snprintf(uom_str, sizeof(uom_str), "%d", engineOnCount);
+    bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "ENG RPM",
+        bb_rx, bb_ry, bb_uom_dx,
+        val_color, lab_color, uom_color,
+        value_fontSize, label_fontSize, uom_fontSize );
+    bb_ry = bb_y + bb_h;
+  }
   //finally draw the frame
   bb_h += 20;
   nvgBeginPath(s->vg);
@@ -1075,8 +1381,94 @@ static void bb_ui_draw_UI(UIState *s)
 
   bb_ui_draw_measures_right(s, bb_dml_x, bb_dml_y, bb_dml_w);
   bb_ui_draw_measures_left(s, bb_dmr_x, bb_dmr_y, bb_dmr_w);
+  
+  
+    //Code for logging (should be moved to another file?)
+    if(scene->engineRPM > 0){
+      if(isEngineOn == 0){
+        isEngineOn = 1;
+        engineOnCount++;
+        logEngineEvent(isEngineOn, scene->odometer, scene->tripDistance, 0);
+      }
+
+       //TripDistance
+       currentTripDistance = scene->tripDistance;
+      if(currentTripDistance < previousTripDistance){
+        tripDistanceCycles++;
+      }
+      previousTripDistance = currentTripDistance;
+
+      //Stores RPM
+      if(scene->engineRPM > maxRPM){
+        maxRPM = scene->engineRPM;
+      }
+      isEngineOn = 1;
+    }
+    if(scene->engineRPM < 1){
+      if(isEngineOn == 1){
+        isEngineOn = 0;
+        logEngineEvent(isEngineOn, scene->odometer, scene->tripDistance,maxRPM);
+        previousTripDistance = 0;
+      }
+      isEngineOn = 0;
+      maxRPM = 0;
+    }
 }
 //BB END: functions added for the display of various items
+
+
+void logEngineEvent(bool EngineOn, int odometer, float tripDistance, int maxRPM)
+{
+  //Create Clarity folder if it doesn't exist
+  struct stat st = {0};
+  if(stat("/data/clarity", &st) == -1){
+    mkdir("/data/clarity", 0755);
+    FILE *out = fopen("/data/clarity/engineLog.csv", "a");
+    fprintf(out, "EngineOn/Off,DateTime,Odometer(km),Trip(km),maxRPM\n");
+    fclose(out);
+  }
+  
+  //time
+  time_t curtime;
+  struct tm *loc_time;
+  curtime = time (NULL);
+  loc_time = localtime (&curtime);
+  char currentTime[sizeof(asctime(loc_time))] = "";
+  int timeSize = 25;
+  strncpy(currentTime, asctime(loc_time), timeSize);
+  currentTime[timeSize-1] = '\0';
+  
+  
+  //Write info to log
+  FILE *out = fopen("/data/clarity/engineLog.csv", "a");
+  if(EngineOn){
+    //Captures the 2.7 kilometer cycle of the trip meter.
+    engineOnTripDistance = tripDistance;
+
+    //Resets some variables
+    tripDistanceCycles = 0;
+    previousTripDistance = 0;
+    
+    fprintf(out, "On ,%s,%i\n", currentTime, odometer);
+    
+  }else{ //EngineOff
+    engineOffTripDistance = tripDistance;
+
+    //Did not cycle.  So calcultaion is straight foward.
+    if(currentTripDistance >= previousTripDistance){
+      netTripDistance = (tripDistanceCycles * 2.7) + (engineOffTripDistance - engineOnTripDistance);
+    }
+    //Did cycle.  So calculation accounts for the cycle.
+    else{
+      netTripDistance = (tripDistanceCycles * 2.7) + (2.7 - engineOffTripDistance + engineOnTripDistance);
+    }
+    fprintf(out, "Off,%s,%i,%.2f,%i\n", currentTime, odometer, netTripDistance, maxRPM);
+
+  }
+  fclose(out);
+  tripDistanceCycles = 0;
+}
+
 
 static void ui_draw_vision_footer(UIState *s) {
   const UIScene *scene = &s->scene;
@@ -1202,7 +1594,21 @@ static void ui_draw_vision(UIState *s) {
   glDisable(GL_BLEND);
 }
 
+void resetTripDistanceVariables(){
+  driveStarted = 0;
+  engineOnTripDistance = 0;
+  engineOffTripDistance = 0;
+  currentTripDistance = 0;
+  previousTripDistance = 0;
+  netTripDistance = 0;
+  tripDistanceCycles = 0;
+  engineOnCount = 0;
+}
+
 static void ui_draw_blank(UIState *s) {
+  if(driveStarted){
+    resetTripDistanceVariables();
+  }
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }

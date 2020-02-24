@@ -114,6 +114,9 @@ static void ui_init(UIState *s) {
   s->radarstate_sock = SubSocket::create(s->ctx, "radarState");
   //s->thermal_sock = SubSocket::create(s->ctx, "thermal");
   s->carstate_sock = SubSocket::create(s->ctx, "carState");
+  s->gpslocation_sock = SubSocket::create(s->ctx, "gpsLocation");
+  s->gpslocationexternal_sock = SubSocket::create(s->ctx, "gpsLocationExternal");
+  s->livempc_sock= SubSocket::create(s->ctx, "liveMpc");
 
   assert(s->model_sock != NULL);
   assert(s->controlsstate_sock != NULL);
@@ -122,6 +125,9 @@ static void ui_init(UIState *s) {
   assert(s->radarstate_sock != NULL);
   //assert(s->thermal_sock != NULL);
   assert(s->carstate_sock != NULL);
+  assert(s->gpslocation_sock != NULL);
+  assert(s->gpslocationexternal_sock != NULL);
+  assert(s->livempc_sock != NULL);
 
   s->poller = Poller::create({
                               s->model_sock,
@@ -129,7 +135,10 @@ static void ui_init(UIState *s) {
                               s->uilayout_sock,
                               s->livecalibration_sock,
                               s->radarstate_sock,
-	                            s->carstate_sock
+	                            s->carstate_sock,
+	                            s->gpslocation_sock,
+	                            s->gpslocationexternal_sock,
+	                            s->livempc_sock
                              });
 
   /*
@@ -285,6 +294,9 @@ void handle_message(UIState *s, Message * msg) {
     struct cereal_ControlsState datad;
     cereal_read_ControlsState(&datad, eventd.controlsState);
 
+    struct cereal_ControlsState_LateralPIDState pdata;
+    cereal_read_ControlsState_LateralPIDState(&pdata, datad.lateralControlState.pidState);
+
     s->controls_timeout = 1 * UI_FREQ;
     s->controls_seen = true;
 
@@ -294,6 +306,8 @@ void handle_message(UIState *s, Message * msg) {
     s->scene.v_cruise = datad.vCruise;
     s->scene.v_ego = datad.vEgo;
     s->scene.angleSteers = datad.angleSteers;
+    s->scene.steerOverride= datad.steerOverride;
+    s->scene.output_scale = pdata.output;
     s->scene.curvature = datad.curvature;
     s->scene.engaged = datad.enabled;
     s->scene.engageable = datad.engageable;
@@ -451,10 +465,38 @@ void handle_message(UIState *s, Message * msg) {
 
   //  s->scene.pa0 = datad.pa0;
   //  s->scene.freeSpace = datad.freeSpace;
+  //GPS from cell phone, not ublox.
+} else if (eventd.which == cereal_Event_gpsLocation) {
+    struct cereal_GpsLocationData datad;
+    cereal_read_GpsLocationData(&datad, eventd.gpsLocation);
+    s->scene.gpsAccuracyPhone = datad.accuracy;
+    s->scene.altitudePhone = datad.altitude;
+    s->scene.speedPhone = datad.speed;
+    s->scene.bearingPhone = datad.bearing;
+//Ublox
+} else if (eventd.which == cereal_Event_gpsLocationExternal) {
+    struct cereal_GpsLocationData datad;
+    cereal_read_GpsLocationData(&datad, eventd.gpsLocationExternal);
+    s->scene.gpsAccuracyUblox = datad.accuracy;
+    if (s->scene.gpsAccuracyUblox > 100)
+    {
+      s->scene.gpsAccuracyUblox = 99.99;
+    }
+    else if (s->scene.gpsAccuracyUblox == 0)
+    {
+      s->scene.gpsAccuracyUblox = 99.8;
+    }
+
+    s->scene.altitudeUblox = datad.altitude;
+    s->scene.speedUblox = datad.speed;
+    s->scene.bearingUblox = datad.bearing;
   } else if (eventd.which == cereal_Event_carState) {
     struct cereal_CarState datad;
     cereal_read_CarState(&datad, eventd.carState);
     s->scene.brakeLights = datad.brakeLights;
+    s->scene.engineRPM = datad.engineRPM;
+    s->scene.odometer = datad.odometer;
+    s->scene.tripDistance = datad.tripDistance;
   }
   capn_free(&ctx);
 }
