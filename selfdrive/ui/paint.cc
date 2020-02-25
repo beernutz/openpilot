@@ -669,7 +669,7 @@ static void ui_draw_vision_speed(UIState *s) {
   upTimeStr[9] = '\0';
 
   nvgText(s->vg, 145, 32, upTimeStr, NULL);
-  */
+  
   
   //Debuging.  Y-values should be 30 pixels apart
   
@@ -712,9 +712,6 @@ static void ui_draw_vision_speed(UIState *s) {
   buffer[15] = '\0';
   nvgText(s->vg, 550, 220, buffer, NULL);
   
-  
-
-  /*
 
   nvgText(s->vg, 260, 200, "previousTripDistance:", NULL);
   sprintf(buffer,"%.2f", previousTripDistance);
@@ -740,11 +737,10 @@ static void ui_draw_vision_speed(UIState *s) {
   sprintf(buffer,"%.2f", scene->odometer*.6211);
   buffer[11] = '\0';
   nvgText(s->vg, 700, 350, buffer, NULL);
-  */
+
   
   
   //Compass
-  /*
   if((scene->bearingUblox >= 337.5) || (scene->bearingUblox < 22.5)){
 	sprintf(direction,"%s", "N" );
   } else if ((scene->bearingUblox >= 22.5) && (scene->bearingUblox < 67.5)){
