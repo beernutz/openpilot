@@ -142,6 +142,13 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.5
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
+    elif candidate == CAR.KIA_SPORTAGE:
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.mass = 3305. * CV.LB_TO_KG
+      ret.wheelbase = 2.66
+      ret.steerRatio = 10.75
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
 
 
     ret.minEnableSpeed = -1.   # enable is done by stock ACC, so ignore this
