@@ -11,7 +11,7 @@ def create_steering_control(packer, bus, apply_steer, idx, lkas_active):
 
   return packer.make_can_msg("ASCMLKASteeringCmd", bus, values)
 
-def create_steering_control_ct6(packer, CanBus, apply_steer, v_ego, idx, enabled):
+def create_steering_control_ct6(packer, canbus, apply_steer, v_ego, idx, enabled):
 
   values = {
     "LKASteeringCmdActive": 1 if enabled else 0,
@@ -31,10 +31,10 @@ def create_steering_control_ct6(packer, CanBus, apply_steer, v_ego, idx, enabled
   # pack again with checksum
   dat = packer.make_can_msg("ASCMLKASteeringCmd", 0, values)[2]
 
-  return [0x152, 0, dat, CanBus.POWERTRAIN], \
-         [0x154, 0, dat, CanBus.POWERTRAIN], \
-         [0x151, 0, dat, CanBus.CHASSIS], \
-         [0x153, 0, dat, CanBus.CHASSIS]
+  return [0x152, 0, dat, canbus.powertrain], \
+         [0x154, 0, dat, canbus.powertrain], \
+         [0x151, 0, dat, canbus.chassis], \
+         [0x153, 0, dat, canbus.chassis]
 
 
 def create_adas_keepalive(bus):
@@ -62,10 +62,12 @@ def create_gas_regen_command(packer, bus, throttle, idx, acc_engaged, at_full_st
 
 def create_friction_brake_command(packer, bus, apply_brake, idx, near_stop, at_full_stop):
 
-  if apply_brake == 0:
-    mode = 0x1
-  else:
+  mode = 0x1
+  if apply_brake > 0:
     mode = 0xa
+
+  if near_stop:
+    mode = 0xb
 
   if at_full_stop:
     mode = 0xd
@@ -86,7 +88,7 @@ def create_friction_brake_command(packer, bus, apply_brake, idx, near_stop, at_f
 
   return packer.make_can_msg("EBCMFrictionBrakeCmd", bus, values)
 
-def create_acc_dashboard_command(packer, bus, acc_engaged, target_speed_kph, lead_car_in_sight):
+def create_acc_dashboard_command(packer, bus, acc_engaged, target_speed_kph, lead_car_in_sight, follow_level, fcw):
   # Not a bit shift, dash can round up based on low 4 bits.
   target_speed = int(target_speed_kph * 16) & 0xfff
 
@@ -94,10 +96,11 @@ def create_acc_dashboard_command(packer, bus, acc_engaged, target_speed_kph, lea
     "ACCAlwaysOne" : 1,
     "ACCResumeButton" : 0,
     "ACCSpeedSetpoint" : target_speed,
-    "ACCGapLevel" : 3 * acc_engaged, # 3 "far", 0 "inactive"
+    "ACCGapLevel" : follow_level,
     "ACCCmdActive" : acc_engaged,
     "ACCAlwaysOne2" : 1,
-    "ACCLeadCar" : lead_car_in_sight
+    "ACCLeadCar" : lead_car_in_sight,
+    "FCWAlert" : fcw
   }
 
   return packer.make_can_msg("ASCMActiveCruiseControlStatus", bus, values)
