@@ -111,7 +111,7 @@ class kegman_conf():
 
       if "ALCnudgeLess" not in self.config:
         self.config.update({"ALCnudgeLess":"1"})
-        self.config.update({"ALCminSpeed":"20.1168"})
+        self.config.update({"ALCminSpeed":"15.6464"})
         self.element_updated = True
 
       if "ALCtimer" not in self.config:
