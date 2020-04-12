@@ -124,7 +124,11 @@ class kegman_conf():
 
       if "CruiseEnableMin" not in self.config:
         self.config.update({"CruiseEnableMin":"40"})
-        self.element_updated = True	
+        self.element_updated = True
+
+      if "epsModded" not in self.config:
+        self.config.update({"epsModded":"0"})
+        self.element_updated = True
 
       if self.element_updated:
         print("updated")

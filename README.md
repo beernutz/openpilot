@@ -44,6 +44,8 @@ Known bugs in 0.7:
 - ACC icon light on dash may turn yellow - does not affect OP engage-ability.
 
 List of changes and tweaks (latest changes at the top):
+- <b> New! EPS modified config</b>: Add epsModded value in kegman.json to change the flag for having a modded EPS.
+
 - <b> New! Timer for Nudgeless Auto Lane Change (default 2 seconds before lane change is made) </b>.  Thanks to @pjlao307 for getting this to work.  I have made the delay configurable in kegman.json
   
 - <b> New! Nudgeless Auto Lane Change with configurable toggles in kegman.json. </b>  By default the behavior is like comma stock - i.e. signal above 45 mph, then nudge the steering wheel in the direction of the blinkers.  If you don't want to nudge the wheel or want ALC enabled at slower speeds, go into kegman.json and change ALCnudgeLess to "1" and ALCminSpeed to [some value] in m/s units.
