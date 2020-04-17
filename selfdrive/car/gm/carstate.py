@@ -7,7 +7,6 @@ from selfdrive.car.interfaces import CarStateBase
 from selfdrive.car.gm.values import DBC, CAR, AccState, CanBus, \
                                     CruiseButtons, is_eps_status_ok, \
                                     STEER_THRESHOLD, SUPERCRUISE_CARS
-from common.kalman.simple_kalman import KF1D
 
 
 def get_chassis_can_parser(CP, canbus):
