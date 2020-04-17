@@ -4,7 +4,7 @@ from common.numpy_fast import interp
 from selfdrive.config import Conversions as CV
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.gm import gmcan
-from selfdrive.car.gm.values import DBC, SUPERCRUISE_CARS, CanBus
+from selfdrive.car.gm.values import DBC, AccState, SUPERCRUISE_CARS, CanBus
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -37,11 +37,11 @@ class CarControllerParams():
 
     # pedal lookups, only for Volt
     MAX_GAS = 3072              # Only a safety limit
-    ZERO_GAS = 2048
+    self.ZERO_GAS = 2048
     MAX_BRAKE = 350             # Should be around 3.5m/s^2, including regen
     self.MAX_ACC_REGEN = 1404  # ACC Regen braking is slightly less powerful than max regen paddle
     self.GAS_LOOKUP_BP = [-0.25, 0., 0.5]
-    self.GAS_LOOKUP_V = [self.MAX_ACC_REGEN, ZERO_GAS, MAX_GAS]
+    self.GAS_LOOKUP_V = [self.MAX_ACC_REGEN, self.ZERO_GAS, MAX_GAS]
     self.BRAKE_LOOKUP_BP = [-1., -0.25]
     self.BRAKE_LOOKUP_V = [MAX_BRAKE, 0]
 
@@ -76,6 +76,7 @@ class CarController():
     self.car_fingerprint = CP.carFingerprint
     self.lka_icon_status_last = (False, False)
     self.steer_rate_limited = False
+    self.fcw_count = 0
 
     self.params = CarControllerParams(CP.carFingerprint)
 
@@ -86,7 +87,6 @@ class CarController():
              hud_v_cruise, hud_show_lanes, hud_show_car, hud_alert):
 
     P = self.params
-
     # Send CAN commands.
     can_sends = []
 
@@ -96,7 +96,7 @@ class CarController():
     ### STEER ###
 
     if (frame % P.STEER_STEP) == 0:
-      lkas_enabled = enabled and not CS.steer_warning and CS.out.vEgo > P.MIN_STEER_SPEED
+      lkas_enabled = enabled and not CS.steer_warning and CS.lkMode and CS.out.vEgo > P.MIN_STEER_SPEED
       if lkas_enabled:
         new_steer = actuators.steer * P.STEER_MAX
         apply_steer = apply_std_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, P)
@@ -137,16 +137,43 @@ class CarController():
       if (frame % 4) == 0:
         idx = (frame // 4) % 4
 
+#<<<<<<< HEAD
+        car_stopping = apply_gas < P.ZERO_GAS
+        standstill = CS.pcm_acc_status == AccState.STANDSTILL
+        at_full_stop = enabled and standstill and car_stopping
+        near_stop = enabled and (CS.out.v_ego < P.NEAR_STOP_BRAKE_PHASE) and car_stopping
+        can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, CanBus.CHASSIS, apply_brake, idx, near_stop, at_full_stop))
+
+        # Auto-resume from full stop by resetting ACC control
+        acc_enabled = enabled
+        if standstill and not car_stopping:
+          acc_enabled = False
+
+        can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, acc_enabled, at_full_stop))
+'''
+=======
         at_full_stop = enabled and CS.out.standstill
         near_stop = enabled and (CS.out.vEgo < P.NEAR_STOP_BRAKE_PHASE)
         can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, CanBus.CHASSIS, apply_brake, idx, near_stop, at_full_stop))
 
         at_full_stop = enabled and CS.out.standstill
         can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, enabled, at_full_stop))
-
+>>>>>>> upstream/devel
+'''
       # Send dashboard UI commands (ACC status), 25hz
+      follow_level = CS.get_follow_level()
       if (frame % 4) == 0:
-        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car))
+
+#<<<<<<< HEAD
+        send_fcw = 0
+        if self.fcw_count > 0:
+          self.fcw_count -= 1
+          send_fcw = 0x3
+        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, 
+                                                           hud_v_cruise * CV.MS_TO_KPH, hud_show_car, follow_level, send_fcw))
+#=======
+#        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car))
+#>>>>>>> upstream/devel
 
       # Radar needs to know current speed and yaw rate (50hz),
       # and that ADAS is alive (10hz)

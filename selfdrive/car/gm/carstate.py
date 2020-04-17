@@ -7,19 +7,64 @@ from selfdrive.car.interfaces import CarStateBase
 from selfdrive.car.gm.values import DBC, CAR, AccState, CanBus, \
                                     CruiseButtons, is_eps_status_ok, \
                                     STEER_THRESHOLD, SUPERCRUISE_CARS
+from common.kalman.simple_kalman import KF1D
 
+
+def get_chassis_can_parser(CP, canbus):
+  # this function generates lists for signal, messages and initial values
+  signals = [
+      # sig_name, sig_address, default
+      ("FrictionBrakePressure", "EBCMFrictionBrakeStatus", 0),
+  ]
+
+  return CANParser(DBC[CP.carFingerprint]['chassis'], signals, [], canbus.chassis)
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
+  def __init__(self, CP, canbus):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = can_define.dv["ECMPRDNL"]["PRNDL"]
+'''
+<<<<<<< HEAD
+      
+    self.CP = CP
+    # initialize can parser
 
+    self.car_fingerprint = CP.carFingerprint
+    self.cruise_buttons = CruiseButtons.UNPRESS
+    self.left_blinker_on = False
+    self.prev_left_blinker_on = False
+    self.right_blinker_on = False
+    self.prev_right_blinker_on = False
+    self.prev_distance_button = 0
+    self.prev_lka_button = 0
+    self.lka_button = 0
+    self.distance_button = 0
+    self.follow_level = 3
+    self.lkMode = True
+    self.frictionBrakesActive = False
+
+    # vEgo kalman filter
+    dt = 0.01
+    self.v_ego_kf = KF1D(x0=[[0.], [0.]],
+                         A=[[1., dt], [0., 1.]],
+                         C=[1., 0.],
+                         K=[[0.12287673], [0.29666309]])
+    self.v_ego = 0.
+
+  def update(self, pt_cp, ch_cp):
+=======
+'''
   def update(self, pt_cp):
     ret = car.CarState.new_message()
 
+#>>>>>>> upstream/devel
     self.prev_cruise_buttons = self.cruise_buttons
     self.cruise_buttons = pt_cp.vl["ASCMSteeringButton"]['ACCButtons']
+    self.prev_lka_button = self.lka_button
+    self.lka_button = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
+    self.prev_distance_button = self.distance_button
+    self.distance_button = pt_cp.vl["ASCMSteeringButton"]["DistanceButton"]
 
     ret.wheelSpeeds.fl = pt_cp.vl["EBCMWheelSpdFront"]['FLWheelSpd'] * CV.KPH_TO_MS
     ret.wheelSpeeds.fr = pt_cp.vl["EBCMWheelSpdFront"]['FRWheelSpd'] * CV.KPH_TO_MS
@@ -74,6 +119,16 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = self.pcm_acc_status != AccState.OFF
     ret.cruiseState.standstill = self.pcm_acc_status == AccState.STANDSTILL
 
+'''
+<<<<<<< HEAD
+    self.gear_shifter_valid = self.gear_shifter == car.CarState.GearShifter.drive
+
+    # Update Friction Brakes from Chassis Canbus
+    self.frictionBrakesActive = bool(ch_cp.vl["EBCMFrictionBrakeStatus"]["FrictionBrakePressure"] != 0)
+'''    
+  def get_follow_level(self):
+    return self.follow_level
+#=======
     # 0 - inactive, 1 - active, 2 - temporary limited, 3 - failed
     self.lkas_status = pt_cp.vl["PSCMStatus"]['LKATorqueDeliveredStatus']
     self.steer_warning = not is_eps_status_ok(self.lkas_status, self.car_fingerprint)
@@ -122,3 +177,4 @@ class CarState(CarStateBase):
       ]
 
     return CANParser(DBC[CP.carFingerprint]['pt'], signals, [], CanBus.POWERTRAIN)
+#>>>>>>> upstream/devel
