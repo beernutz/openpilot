@@ -19,7 +19,7 @@ def get_chassis_can_parser(CP, canbus):
   return CANParser(DBC[CP.carFingerprint]['chassis'], signals, [], canbus.chassis)
 
 class CarState(CarStateBase):
-  def __init__(self, CP, canbus):
+  def __init__(self, CP):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = can_define.dv["ECMPRDNL"]["PRNDL"]
