@@ -5,10 +5,6 @@ from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.car.gm.values import CAR, Ecu, ECU_FINGERPRINT, CruiseButtons, \
                                     SUPERCRUISE_CARS, AccState, FINGERPRINTS
-#<<<<<<< HEAD
-#from selfdrive.car.gm.carstate import CarState, CruiseButtons, get_powertrain_can_parser, get_chassis_can_parser
-#=======
-#>>>>>>> upstream/devel
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
@@ -18,30 +14,6 @@ FOLLOW_AGGRESSION = 0.15 # (Acceleration/Decel aggression) Lower is more aggress
 ButtonType = car.CarState.ButtonEvent.Type
 
 class CarInterface(CarInterfaceBase):
-'''
-<<<<<<< HEAD
-  def __init__(self, CP, CarController):
-    self.CP = CP
-
-    self.frame = 0
-    self.gas_pressed_prev = False
-    self.brake_pressed_prev = False
-    self.acc_active_prev = 0
-
-    # *** init the major players ***
-    canbus = CanBus()
-    self.CS = CarState(CP, canbus)
-    self.VM = VehicleModel(CP)
-    self.pt_cp = get_powertrain_can_parser(CP, canbus)
-    self.ch_cp = get_chassis_can_parser(CP, canbus)
-    self.ch_cp_dbc_name = DBC[CP.carFingerprint]['chassis']
-
-    self.CC = None
-    if CarController is not None:
-      self.CC = CarController(canbus, CP.carFingerprint)
-=======
->>>>>>> upstream/devel
-'''
   @staticmethod
   def compute_gb(accel, speed):
   	# Ripped from compute_gb_honda in Honda's interface.py. Works well off shelf but may need more tuning
@@ -202,70 +174,22 @@ class CarInterface(CarInterfaceBase):
 
   # returns a car.CarState
   def update(self, c, can_strings):
-'''
-<<<<<<< HEAD
-    self.pt_cp.update_strings(can_strings)
-    self.ch_cp.update_strings(can_strings)
-    self.CS.update(self.pt_cp, self.ch_cp)
-
-    # create message
-    ret = car.CarState.new_message()
-
-    ret.canValid = self.pt_cp.can_valid
-
-    # speeds
-    ret.vEgo = self.CS.v_ego
-    ret.aEgo = self.CS.a_ego
-    ret.vEgoRaw = self.CS.v_ego_raw
-    ret.yawRate = self.VM.yaw_rate(self.CS.angle_steers * CV.DEG_TO_RAD, self.CS.v_ego)
-    ret.standstill = self.CS.standstill
-    ret.wheelSpeeds.fl = self.CS.v_wheel_fl
-    ret.wheelSpeeds.fr = self.CS.v_wheel_fr
-    ret.wheelSpeeds.rl = self.CS.v_wheel_rl
-    ret.wheelSpeeds.rr = self.CS.v_wheel_rr
-=======
-'''
     self.cp.update_strings(can_strings)
-#>>>>>>> upstream/devel
 
     ret = self.CS.update(self.cp)
 
-'''
-<<<<<<< HEAD
     # brake pedal
     ret.brake = self.CS.user_brake / 0xd0
     ret.brakePressed = self.CS.brake_pressed
     ret.brakeLights = self.CS.frictionBrakesActive
     
-    # steering wheel
-    ret.steeringAngle = self.CS.angle_steers
-
-    # torque and user override. Driver awareness
-    # timer resets when the user uses the steering wheel.
-    ret.steeringPressed = self.CS.steer_override
-    ret.steeringTorque = self.CS.steer_torque_driver
-    ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-
     # cruise state
     ret.cruiseState.available = bool(self.CS.main_on)
     cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
     ret.cruiseState.enabled = cruiseEnabled
     ret.cruiseState.standstill = False
-
-    ret.leftBlinker = self.CS.left_blinker_on
-    ret.rightBlinker = self.CS.right_blinker_on
-    ret.doorOpen = not self.CS.door_all_closed
-    ret.seatbeltUnlatched = not self.CS.seatbelt
-    ret.gearShifter = self.CS.gear_shifter
-'''
     ret.readdistancelines = self.CS.follow_level
 
-#=======
-    ret.canValid = self.cp.can_valid
-    ret.yawRate = self.VM.yaw_rate(ret.steeringAngle * CV.DEG_TO_RAD, ret.vEgo)
-    ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-
-#>>>>>>> upstream/devel
     buttonEvents = []
 
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons and self.CS.prev_cruise_buttons != CruiseButtons.INIT:
@@ -300,27 +224,7 @@ class CarInterface(CarInterfaceBase):
        if self.CS.follow_level < 1:
          self.CS.follow_level = 3
 
-'''
-<<<<<<< HEAD
-    events = []
-    
-    if not self.CS.lkMode:
-      events.append(create_event('manualSteeringRequired', [ET.WARNING]))
-    #if cruiseEnabled and (self.CS.left_blinker_on or self.CS.right_blinker_on):
-    #   events.append(create_event('manualSteeringRequiredBlinkersOn', [ET.WARNING]))
-
-    if self.CS.steer_error:
-      events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
-    if self.CS.steer_not_allowed:
-      events.append(create_event('steerTempUnavailable', [ET.NO_ENTRY, ET.WARNING]))
-    if ret.doorOpen:
-      events.append(create_event('doorOpen', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
-    if ret.seatbeltUnlatched:
-      events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
-=======
-'''
     events = self.create_common_events(ret)
-#>>>>>>> upstream/devel
 
     if self.CS.car_fingerprint in SUPERCRUISE_CARS:
       if ret.cruiseState.enabled and not self.cruise_enabled_prev:

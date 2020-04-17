@@ -137,7 +137,6 @@ class CarController():
       if (frame % 4) == 0:
         idx = (frame // 4) % 4
 
-#<<<<<<< HEAD
         car_stopping = apply_gas < P.ZERO_GAS
         standstill = CS.pcm_acc_status == AccState.STANDSTILL
         at_full_stop = enabled and standstill and car_stopping
@@ -150,30 +149,17 @@ class CarController():
           acc_enabled = False
 
         can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, acc_enabled, at_full_stop))
-'''
-=======
-        at_full_stop = enabled and CS.out.standstill
-        near_stop = enabled and (CS.out.vEgo < P.NEAR_STOP_BRAKE_PHASE)
-        can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, CanBus.CHASSIS, apply_brake, idx, near_stop, at_full_stop))
-
-        at_full_stop = enabled and CS.out.standstill
-        can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, enabled, at_full_stop))
->>>>>>> upstream/devel
-'''
+      
       # Send dashboard UI commands (ACC status), 25hz
       follow_level = CS.get_follow_level()
       if (frame % 4) == 0:
 
-#<<<<<<< HEAD
         send_fcw = 0
         if self.fcw_count > 0:
           self.fcw_count -= 1
           send_fcw = 0x3
         can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, 
                                                            hud_v_cruise * CV.MS_TO_KPH, hud_show_car, follow_level, send_fcw))
-#=======
-#        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car))
-#>>>>>>> upstream/devel
 
       # Radar needs to know current speed and yaw rate (50hz),
       # and that ADAS is alive (10hz)
