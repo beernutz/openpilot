@@ -119,6 +119,7 @@ class CarState(CarStateBase):
       ("TurnSignals", "BCMTurnSignals", 0),
       ("AcceleratorPedal", "AcceleratorPedal", 0),
       ("ACCButtons", "ASCMSteeringButton", CruiseButtons.UNPRESS),
+      ("LKAButton", "ASCMSteeringButton", 0),
       ("SteeringWheelAngle", "PSCMSteeringAngle", 0),
       ("FLWheelSpd", "EBCMWheelSpdFront", 0),
       ("FRWheelSpd", "EBCMWheelSpdFront", 0),
@@ -127,6 +128,7 @@ class CarState(CarStateBase):
       ("PRNDL", "ECMPRDNL", 0),
       ("LKADriverAppldTrq", "PSCMStatus", 0),
       ("LKATorqueDeliveredStatus", "PSCMStatus", 0),
+      ("DistanceButton", "ASCMSteeringButton", 0),
     ]
 
     if CP.carFingerprint == CAR.VOLT:
