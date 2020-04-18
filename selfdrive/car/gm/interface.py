@@ -186,8 +186,10 @@ class CarInterface(CarInterfaceBase):
     
     # cruise state
     ret.cruiseState.available = bool(self.CS.main_on)
+    '''
     cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
     ret.cruiseState.enabled = cruiseEnabled
+    '''
     ret.cruiseState.standstill = False
     '''
     ret.readdistancelines = self.CS.follow_level
