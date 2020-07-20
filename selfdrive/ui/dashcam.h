@@ -174,8 +174,8 @@ bool screen_lock_button_clicked(int touch_x, int touch_y, dashcam_element el) {
 }
 
 bool screen_button_clicked(int touch_x, int touch_y) {
-  if (touch_x >= 1660 && touch_x <= 1810) {
-    if (touch_y >= 885 && touch_y <= 1035) {
+  if (touch_x >= 1660 && touch_x <= 1820) {
+    if (touch_y >= 885 && touch_y <= 1055) {
       return true;
     }
   }
@@ -227,7 +227,6 @@ void draw_lock_button(UIState *s) {
   int btn_h = 150;
   int btn_x = 1920 - btn_w - 150;
   int btn_y = 1080 - btn_h;
-  int imgw, imgh;
   float alpha = 0.3f;
 
   if (!lock_image) {
@@ -240,8 +239,8 @@ void draw_lock_button(UIState *s) {
   }
 
   nvgBeginPath(s->vg);
-  NVGpaint imgPaint = nvgImagePattern(s->vg, btn_x-125, btn_y-45, 150, 150, 0, lock_image, alpha);
-  nvgRoundedRect(s->vg, btn_x-125, btn_y-45, 150, 150, 100);
+  NVGpaint imgPaint = nvgImagePattern(s->vg, btn_x-125, btn_y-30, 150, 150, 0, lock_image, alpha);
+  nvgRoundedRect(s->vg, btn_x-125, btn_y-30, 150, 150, 100);
   nvgFillPaint(s->vg, imgPaint);
   nvgFill(s->vg);
 
@@ -265,10 +264,10 @@ static void screen_draw_button(UIState *s, int touch_x, int touch_y) {
 
     int btn_w = 150;
     int btn_h = 150;
-    int btn_x = 1920 - btn_w;
-    int btn_y = 1080 - btn_h;
+    int btn_x = 1920 - btn_w+12;
+    int btn_y = 1080 - btn_h+5; //Shift REC button down some -wirelessnet2
     nvgBeginPath(s->vg);
-      nvgRoundedRect(s->vg, btn_x-110, btn_y-45, btn_w, btn_h, 100);
+      nvgRoundedRect(s->vg, btn_x-110+12, btn_y-45+5, btn_w, btn_h, 100); //Shift REC button down some -wirelessnet2
       nvgStrokeColor(s->vg, nvgRGBA(255,255,255,80));
       nvgStrokeWidth(s->vg, 6);
       nvgStroke(s->vg);
@@ -284,7 +283,7 @@ static void screen_draw_button(UIState *s, int touch_x, int touch_y) {
       else {
         nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 200));
       }
-      nvgText(s->vg,btn_x-88,btn_y+50,"REC",NULL);
+      nvgText(s->vg,btn_x-35+12,btn_y+50+5,"REC",NULL); //Shift REC button down some -wirelessnet2
   }
 
   if (captureState == CAPTURE_STATE_CAPTURING) {
@@ -333,15 +332,9 @@ void dashcam( UIState *s, int touch_x, int touch_y ) {
   if (screen_lock_button_clicked(touch_x,touch_y,lock_button)) {
     screen_toggle_lock();
   }
-  if (!s->vision_connected) {
+  if (!s->started) {
     // Assume car is not in drive so stop recording
     stop_capture();
-  }
-  if (s->scene.v_ego > 3.1 && captureState == CAPTURE_STATE_PAUSED) {
-    start_capture();
-  } else if (s->scene.v_ego < 2.9 && captureState == CAPTURE_STATE_CAPTURING) {
-    stop_capture();
-    captureState = CAPTURE_STATE_PAUSED;
   }
   s->scene.recording = (captureState != CAPTURE_STATE_NOT_CAPTURING);
 }

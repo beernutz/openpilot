@@ -473,6 +473,7 @@ class CarInterface(CarInterfaceBase):
     ret.lkMode = self.CS.lkMode
 
     # TODO: button presses
+    ret.engineRPM = self.CS.engineRPM
     buttonEvents = []
 
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:

@@ -15,6 +15,9 @@ LaneChangeDirection = log.PathPlan.LaneChangeDirection
 
 LOG_MPC = os.environ.get('LOG_MPC', True)
 
+LANE_CHANGE_SPEED_MIN = 30 * CV.MPH_TO_MS
+LANE_CHANGE_TIME_MAX = 10.
+
 DESIRES = {
   LaneChangeDirection.none: {
     LaneChangeState.off: log.PathPlan.Desire.none,

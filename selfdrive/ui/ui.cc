@@ -16,6 +16,7 @@
 #include "common/params.h"
 #include "common/utilpp.h"
 #include "ui.hpp"
+#include "dashcam.h"
 
 static void ui_set_brightness(UIState *s, int brightness) {
   static int last_brightness = -1;
@@ -168,7 +169,7 @@ static void ui_init(UIState *s) {
 
   pthread_mutex_init(&s->lock, NULL);
   s->sm = new SubMaster({"model", "controlsState", "uiLayoutState", "liveCalibration", "radarState", "thermal",
-                         "health", "ubloxGnss", "driverState", "dMonitoringState"
+                         "health", "ubloxGnss", "driverState", "dMonitoringState", "carState", "liveMpc", "gpsLocationExternal"
 #ifdef SHOW_SPEEDLIMIT
                                     , "liveMapData"
 #endif
@@ -288,6 +289,11 @@ void handle_message(UIState *s, SubMaster &sm) {
     scene.frontview = scene.controls_state.getRearViewCam();
     if (!scene.frontview){ s->controls_seen = true; }
 
+    s->scene.angleSteers = scene.controls_state.getAngleSteers();
+    s->scene.steerOverride= scene.controls_state.getSteerOverride();
+    s->scene.output_scale = scene.controls_state.getLateralControlState().getPidState().getOutput();
+    s->scene.angleSteersDes = scene.controls_state.getAngleSteersDes();
+
     auto alert_sound = scene.controls_state.getAlertSound();
     if (scene.alert_type.compare(scene.controls_state.getAlertType()) != 0) {
       if (alert_sound == AudibleAlert::NONE) {
@@ -331,6 +337,9 @@ void handle_message(UIState *s, SubMaster &sm) {
     auto data = sm["radarState"].getRadarState();
     scene.lead_data[0] = data.getLeadOne();
     scene.lead_data[1] = data.getLeadTwo();
+    s->scene.lead_v_rel = scene.lead_data[0].getVRel();
+    s->scene.lead_d_rel = scene.lead_data[0].getDRel();
+    s->scene.lead_status = scene.lead_data[0].getStatus();
   }
   if (sm.updated("liveCalibration")) {
     scene.world_objects_visible = true;
@@ -342,16 +351,15 @@ void handle_message(UIState *s, SubMaster &sm) {
   if (sm.updated("model")) {
     read_model(scene.model, sm["model"].getModel());
   }
-  // else if (which == cereal::Event::LIVE_MPC) {
-  //   auto data = event.getLiveMpc();
-  //   auto x_list = data.getX();
-  //   auto y_list = data.getY();
-  //   for (int i = 0; i < 50; i++){
-  //     scene.mpc_x[i] = x_list[i];
-  //     scene.mpc_y[i] = y_list[i];
-  //   }
-  //   s->livempc_or_radarstate_changed = true;
-  // }
+  if (sm.updated("liveMpc")) {
+    auto data = sm["liveMpc"].getLiveMpc();
+    auto x_list = data.getX();
+    auto y_list = data.getY();
+    for (int i = 0; i < 50; i++){
+      scene.mpc_x[i] = x_list[i];
+      scene.mpc_y[i] = y_list[i];
+    }
+  }
   if (sm.updated("uiLayoutState")) {
     auto data = sm["uiLayoutState"].getUiLayoutState();
     s->active_app = data.getActiveApp();
@@ -364,12 +372,18 @@ void handle_message(UIState *s, SubMaster &sm) {
 #endif
   if (sm.updated("thermal")) {
     scene.thermal = sm["thermal"].getThermal();
+    s->scene.cpu0Temp = scene.thermal.getCpu0();
+    s->scene.cpuPerc = scene.thermal.getCpuPerc();
   }
   if (sm.updated("ubloxGnss")) {
     auto data = sm["ubloxGnss"].getUbloxGnss();
     if (data.which() == cereal::UbloxGnss::MEASUREMENT_REPORT) {
       scene.satelliteCount = data.getMeasurementReport().getNumMeas();
+      s->scene.satelliteCount = scene.satelliteCount;
     }
+    auto data2 = sm["gpsLocationExternal"].getGpsLocationExternal();
+    s->scene.gpsAccuracyUblox = data2.getAccuracy();
+    s->scene.altitudeUblox = data2.getAltitude();
   }
   if (sm.updated("health")) {
     scene.hwType = sm["health"].getHealth().getHwType();
@@ -382,8 +396,14 @@ void handle_message(UIState *s, SubMaster &sm) {
     auto data = sm["dMonitoringState"].getDMonitoringState();
     scene.is_rhd = data.getIsRHD();
     s->preview_started = data.getIsPreview();
-  }
-
+  } else if (sm.updated("carState")) {
+    auto data = sm["carState"].getCarState();
+    s->scene.brakeLights = data.getBrakeLights();
+    s->scene.engineRPM = data.getEngineRPM();
+    s->scene.aEgo = data.getAEgo();
+    s->scene.steeringTorqueEps = data.getSteeringTorqueEps();
+  } 
+  
   s->started = scene.thermal.getStarted() || s->preview_started;
   // Handle onroad/offroad transition
   if (!s->started) {
@@ -481,8 +501,8 @@ static void ui_update(UIState *s) {
     assert(glGetError() == GL_NO_ERROR);
 
     s->scene.uilayout_sidebarcollapsed = true;
-    s->scene.ui_viz_rx = (box_x-sbr_w+bdr_s*2);
-    s->scene.ui_viz_rw = (box_w+sbr_w-(bdr_s*2));
+    s->scene.ui_viz_rx = (box_x-sbr_w+bdr_is*2);
+    s->scene.ui_viz_rw = (box_w+sbr_w-(bdr_is*2));
     s->scene.ui_viz_ro = 0;
 
     s->vision_connect_firstrun = false;
@@ -768,9 +788,9 @@ int main(int argc, char* argv[]) {
 
     // resize vision for collapsing sidebar
     const bool hasSidebar = !s->scene.uilayout_sidebarcollapsed;
-    s->scene.ui_viz_rx = hasSidebar ? box_x : (box_x - sbr_w + (bdr_s * 2));
-    s->scene.ui_viz_rw = hasSidebar ? box_w : (box_w + sbr_w - (bdr_s * 2));
-    s->scene.ui_viz_ro = hasSidebar ? -(sbr_w - 6 * bdr_s) : 0;
+    s->scene.ui_viz_rx = hasSidebar ? box_x : (box_x - sbr_w + (bdr_is * 2));
+    s->scene.ui_viz_rw = hasSidebar ? box_w : (box_w + sbr_w - (bdr_is * 2));
+    s->scene.ui_viz_ro = hasSidebar ? -(sbr_w - 6 * bdr_is) : 0;
 
     // poll for touch events
     int touch_x = -1, touch_y = -1;
@@ -822,6 +842,7 @@ int main(int argc, char* argv[]) {
 
     // Don't waste resources on drawing in case screen is off
     if (s->awake) {
+      dashcam(s, touch_x, touch_y);
       ui_draw(s);
       glFinish();
       should_swap = true;
