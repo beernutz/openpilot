@@ -11,6 +11,7 @@ FOLLOW_AGGRESSION = 0.15 # (Acceleration/Decel aggression) Lower is more aggress
 
 
 ButtonType = car.CarState.ButtonEvent.Type
+EventName = car.CarEvent.EventName
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
