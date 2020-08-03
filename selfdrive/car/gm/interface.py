@@ -233,12 +233,12 @@ class CarInterface(CarInterfaceBase):
     for b in ret.buttonEvents:
       # do enable on both accel and decel buttons
       if b.type in [ButtonType.accelCruise, ButtonType.decelCruise] and not b.pressed:
-        events.append(create_event('buttonEnable', [ET.ENABLE]))
+        events.add(EventName.buttonEnable)
       # do disable on button down
       if b.type == ButtonType.cancel and b.pressed:
-        events.append(create_event('buttonCancel', [ET.USER_DISABLE]))
+        events.add(EventName.buttonCancel)
 
-    ret.events = events
+    ret.events = events.to_msg()
 
     # copy back carState packet to CS
     self.CS.out = ret.as_reader()
