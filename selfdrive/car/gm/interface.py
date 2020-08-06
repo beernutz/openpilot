@@ -163,24 +163,9 @@ class CarInterface(CarInterfaceBase):
 
     ret = self.CS.update(self.cp)
 
-    '''
-    # brake pedal
-    ret.brake = self.CS.user_brake / 0xd0
-    ret.brakePressed = self.CS.brake_pressed
-    ret.brakeLights = self.CS.frictionBrakesActive
-    
-    # cruise state
-    ret.cruiseState.available = bool(self.CS.main_on)
-    '''
-    cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
-    ret.cruiseState.enabled = cruiseEnabled
-    '''
-    ret.cruiseState.standstill = False
-    '''
     ret.readdistancelines = self.CS.follow_level
     
     ret.canValid = self.cp.can_valid
-    ret.yawRate = self.VM.yaw_rate(ret.steeringAngle * CV.DEG_TO_RAD, ret.vEgo)
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
     buttonEvents = []
@@ -223,8 +208,6 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.belowEngageSpeed)
     if self.CS.park_brake:
       events.add(EventName.parkBrake)
-    if ret.cruiseState.standstill:
-      events.add(EventName.resumeRequired)
     if self.CS.pcm_acc_status == AccState.FAULTED:
       events.add(EventName.controlsFailed)
     if ret.vEgo < self.CP.minSteerSpeed:
