@@ -68,30 +68,19 @@ class CarState(CarStateBase):
     ret.espDisabled = pt_cp.vl["ESPStatus"]['TractionControlOn'] != 1
     self.pcm_acc_status = pt_cp.vl["AcceleratorPedal2"]['CruiseState']
 
-    regen_pressed = False
-    if self.car_fingerprint == CAR.VOLT:
-      regen_pressed = bool(pt_cp.vl["EBCMRegenPaddle"]['RegenPaddle'])
-
-    self.park_brake = pt_cp.vl["EPBStatus"]['EPBClosed']
-    ret.cruiseState.available = bool(pt_cp.vl["ECMEngineStatus"]['CruiseMainOn'])
-    ret.espDisabled = pt_cp.vl["ESPStatus"]['TractionControlOn'] != 1
-    self.pcm_acc_status = pt_cp.vl["AcceleratorPedal2"]['CruiseState']
-
     ret.brakePressed = ret.brake > 1e-5
     # Regen braking is braking
-    ret.brakePressed = ret.brake > 1e-5 or regen_pressed
     if self.car_fingerprint == CAR.VOLT:
       ret.brakePressed = ret.brakePressed or bool(pt_cp.vl["EBCMRegenPaddle"]['RegenPaddle'])
 
     ret.cruiseState.enabled = self.pcm_acc_status != AccState.OFF
-    ret.cruiseState.standstill = self.pcm_acc_status == AccState.STANDSTILL
+    ret.cruiseState.standstill = False
 
     # 0 - inactive, 1 - active, 2 - temporary limited, 3 - failed
     self.lkas_status = pt_cp.vl["PSCMStatus"]['LKATorqueDeliveredStatus']
     ret.steerWarning = self.lkas_status not in [0, 1]
 
     return ret
-
 
 
   def get_follow_level(self):
