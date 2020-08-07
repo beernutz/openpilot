@@ -163,6 +163,9 @@ class CarInterface(CarInterfaceBase):
 
     ret = self.CS.update(self.cp)
 
+    cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
+    ret.cruiseState.enabled = cruiseEnabled
+
     ret.readdistancelines = self.CS.follow_level
     
     ret.canValid = self.cp.can_valid
