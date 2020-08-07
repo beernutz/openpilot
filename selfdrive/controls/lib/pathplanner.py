@@ -9,6 +9,7 @@ from selfdrive.kegman_conf import kegman_conf
 from common.numpy_fast import interp
 import cereal.messaging as messaging
 from cereal import log
+from selfdrive.config import Conversions as CV
 
 LaneChangeState = log.PathPlan.LaneChangeState
 LaneChangeDirection = log.PathPlan.LaneChangeDirection
