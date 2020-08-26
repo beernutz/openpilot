@@ -441,7 +441,9 @@ class CarInterface(CarInterfaceBase):
     else:
       ret.gasMaxBP = [0.]  # m/s
       ret.gasMaxV = [0.] # max gas allowed
-    
+
+    ret.gasMaxV = [v * int(kegman.conf['gasPercentMultiplier'])/100) for v in ret.gasMaxV]
+
     ret.brakeMaxBP = [5., 20.]  # m/s
     ret.brakeMaxV = [1., 0.8]   # max brake allowed
 
