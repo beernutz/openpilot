@@ -304,7 +304,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpV = [3.6, 2.4, 1.5]
       ret.longitudinalTuning.kiV = [0.54, 0.36]
 
-    ret.gasMaxV = [v * int(kegman.conf['gasPercentMultiplier'])/100) for v in ret.gasMaxV]
+    ret.gasMaxV = [v * (int(kegman.conf['gasPercentMultiplier'])/100) for v in ret.gasMaxV]
 
     return ret
 
