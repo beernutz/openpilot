@@ -5,7 +5,6 @@ from selfdrive.car.toyota.values import Ecu, ECU_FINGERPRINT, CAR, TSS2_CAR, FIN
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
 from selfdrive.swaglog import cloudlog
 from selfdrive.car.interfaces import CarInterfaceBase
-from selfdrive.kegman_conf import kegman_conf
 
 EventName = car.CarEvent.EventName
 
@@ -23,8 +22,6 @@ class CarInterface(CarInterfaceBase):
 
     ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
     ret.steerLimitTimer = 0.4
-
-    kegman = kegman_conf()
 
     if candidate not in [CAR.PRIUS, CAR.RAV4, CAR.RAV4H]:  # These cars use LQR/INDI
       ret.lateralTuning.init('pid')
@@ -303,8 +300,6 @@ class CarInterface(CarInterfaceBase):
       ret.gasMaxV = [0.5]
       ret.longitudinalTuning.kpV = [3.6, 2.4, 1.5]
       ret.longitudinalTuning.kiV = [0.54, 0.36]
-
-    ret.gasMaxV = [v * (int(kegman.conf['gasPercentMultiplier'])/100) for v in ret.gasMaxV]
 
     return ret
 

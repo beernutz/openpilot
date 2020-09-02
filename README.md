@@ -66,6 +66,8 @@ Known bugs in 0.7:
 - ACC icon light on dash may turn yellow - does not affect OP engage-ability.
 
 List of changes and tweaks (latest changes at the top):
+- <b> New! accelerationMode config</b>: Added accelerationMode config option in kegman.json to change the acceleration mode between eco(`"accelerationMode": "0",`), regular(`"accelerationMode": "1",`), and sport(`"accelerationMode": "2",`) modes.
+
 - <b> New! EPS modified config</b>: Add epsModded value in kegman.json to change the flag for having a modded EPS.
 
 - <b> New! Timer for Nudgeless Auto Lane Change (default 2 seconds before lane change is made) </b>.  Thanks to @pjlao307 for getting this to work.  I have made the delay configurable in kegman.json
