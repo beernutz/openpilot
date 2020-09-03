@@ -41,8 +41,8 @@ button_delay = 0.2
 kegman = kegman_conf()
 kegman.conf['tuneGernby'] = "1"
 #kegman.write_config(kegman.conf)
-param = ["Kp", "Ki", "Kf", "steerRatio", "sR_boost", "sR_BP0", \
-         "sR_BP1", "sR_time", "steerRateCost", "deadzone", "slowOnCurves", \
+param = [ "accelerationMode", "Kp", "Ki", "Kf", "steerRatio", "sR_boost", "sR_BP0", \
+         "sR_BP1", "sR_time", "slowOnCurves", \
          "1barBP0", "1barBP1", "1barMax", "2barBP0", "2barBP1", \
          "2barMax", "3barBP0", "3barBP1", "3barMax", \
          "1barHwy", "2barHwy", "3barHwy"]
@@ -56,7 +56,7 @@ while True:
   print ("")
   print ("1,3,5,7,r to incr 0.1,0.05,0.01,0.001,0.00001")
   print ("a,d,g,j,v to decr 0.1,0.05,0.01,0.001,0.00001")
-  print ("0 / L to make the value 0 / 1")
+  print ("0 / L / P to make the value 0 / 1 / 2")
   print ("press SPACE / m for next /prev parameter")
   print ("press z to quit")
 
@@ -110,6 +110,10 @@ while True:
     kegman.conf[param[j]] = "1"
     write_json = True
 
+  elif (char == "p"):
+    kegman.conf[param[j]] = "2"
+    write_json = True
+
   elif (char == " "):
     if j < len(param) - 1:
       j = j + 1
@@ -130,6 +134,9 @@ while True:
   if float(kegman.conf['tuneGernby']) != 1 and float(kegman.conf['tuneGernby']) != 0:
     kegman.conf['tuneGernby'] = "1"
 
+  if float(kegman.conf['accelerationMode']) != 0 and float(kegman.conf['accelerationMode']) != 1 and float(kegman.conf['accelerationMode'] != 2):
+    kegman.conf['accelerationMode'] = "1"
+
   if float(kegman.conf['Ki']) < 0 and float(kegman.conf['Ki']) != -1:
     kegman.conf['Ki'] = "0"
 
@@ -142,17 +149,17 @@ while True:
   if float(kegman.conf['Kp']) > 3:
     kegman.conf['Kp'] = "3"
     
-  if kegman.conf['liveParams'] != "1" and kegman.conf['liveParams'] != "0":
-    kegman.conf['liveParams'] = "1"
+  #if kegman.conf['liveParams'] != "1" and kegman.conf['liveParams'] != "0":
+  #  kegman.conf['liveParams'] = "1"
     
   if float(kegman.conf['steerRatio']) < 1 and float(kegman.conf['steerRatio']) != -1:
     kegman.conf['steerRatio'] = "1"
     
-  if float(kegman.conf['steerRateCost']) < 0.01 and float(kegman.conf['steerRateCost']) != -1:
-    kegman.conf['steerRateCost'] = "0.01"
+  #if float(kegman.conf['steerRateCost']) < 0.01 and float(kegman.conf['steerRateCost']) != -1:
+  #  kegman.conf['steerRateCost'] = "0.01"
     
-  if float(kegman.conf['deadzone']) < 0:
-    kegman.conf['deadzone'] = "0"
+  #if float(kegman.conf['deadzone']) < 0:
+  #  kegman.conf['deadzone'] = "0"
     
   if float(kegman.conf['1barBP0']) < -0.5:
     kegman.conf['1barBP0'] = "-0.5"  
