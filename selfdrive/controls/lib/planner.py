@@ -48,14 +48,14 @@ _A_TOTAL_MAX_BP = [0., 25., 55.]
 SPEED_PERCENTILE_IDX = 7
 
 
-def calc_cruise_accel_limits(v_ego, following, kegman):
+def calc_cruise_accel_limits(v_ego, following, keg)
   a_cruise_min = interp(v_ego, _A_CRUISE_MIN_BP, _A_CRUISE_MIN_V)
 
   if following:
     a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V_FOLLOWING)
   else:
     _A_CRUISE_MAX_V_MODE_LIST = [_A_CRUISE_MAX_V_ECO, _A_CRUISE_MAX_V, _A_CRUISE_MAX_V_SPORT]
-    _A_CRUISE_MAX_V_MODE_LIST_INDEX = min(max(int(kegman.conf['accelerationMode']), 0), (len(_A_CRUISE_MAX_V_MODE_LIST) - 1))
+    _A_CRUISE_MAX_V_MODE_LIST_INDEX = min(max(int(keg.conf['accelerationMode']), 0), (len(_A_CRUISE_MAX_V_MODE_LIST) - 1))
     a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V_MODE_LIST[_A_CRUISE_MAX_V_MODE_LIST_INDEX])
   return np.vstack([a_cruise_min, a_cruise_max])
 
