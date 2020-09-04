@@ -48,7 +48,7 @@ _A_TOTAL_MAX_BP = [0., 25., 55.]
 SPEED_PERCENTILE_IDX = 7
 
 
-def calc_cruise_accel_limits(v_ego, following, keg)
+def calc_cruise_accel_limits(v_ego, following, keg):
   a_cruise_min = interp(v_ego, _A_CRUISE_MIN_BP, _A_CRUISE_MIN_V)
 
   if following:
