@@ -48,14 +48,16 @@ _A_TOTAL_MAX_BP = [0., 25., 55.]
 SPEED_PERCENTILE_IDX = 7
 
 
-def calc_cruise_accel_limits(v_ego, following, keg):
+def calc_cruise_accel_limits(v_ego, following, accelMode):
   a_cruise_min = interp(v_ego, _A_CRUISE_MIN_BP, _A_CRUISE_MIN_V)
+
+  print("accelMode = ",accelMode) 
 
   if following:
     a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V_FOLLOWING)
   else:
     _A_CRUISE_MAX_V_MODE_LIST = [_A_CRUISE_MAX_V_ECO, _A_CRUISE_MAX_V, _A_CRUISE_MAX_V_SPORT]
-    _A_CRUISE_MAX_V_MODE_LIST_INDEX = min(max(int(keg.conf['accelerationMode']), 0), (len(_A_CRUISE_MAX_V_MODE_LIST) - 1))
+    _A_CRUISE_MAX_V_MODE_LIST_INDEX = min(max(int(accelMode), 0), (len(_A_CRUISE_MAX_V_MODE_LIST) - 1))
     a_cruise_max = interp(v_ego, _A_CRUISE_MAX_BP, _A_CRUISE_MAX_V_MODE_LIST[_A_CRUISE_MAX_V_MODE_LIST_INDEX])
   return np.vstack([a_cruise_min, a_cruise_max])
 
@@ -166,7 +168,7 @@ class Planner():
 
     # Calculate speed for normal cruise control
     if enabled and not self.first_loop and not sm['carState'].gasPressed:
-      accel_limits = [float(x) for x in calc_cruise_accel_limits(v_ego, following, self.kegman)]
+      accel_limits = [float(x) for x in calc_cruise_accel_limits(v_ego, following, self.kegman.conf[accelerationMode])]
       jerk_limits = [min(-0.1, accel_limits[0]), max(0.1, accel_limits[1])]  # TODO: make a separate lookup for jerk tuning
       accel_limits_turns = limit_accel_in_turns(v_ego, sm['carState'].steeringAngle, accel_limits, self.CP)
 
