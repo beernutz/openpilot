@@ -139,6 +139,25 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed, ignition):
 
   return new_speed
 
+def check_car_battery_voltage(should_start, health, charging_disabled, msg):
+
+  # charging disallowed if:
+  #   - there are health packets from panda, and;
+  #   - 12V battery voltage is too low, and;
+  #   - onroad isn't started
+  print(health)
+  
+  if charging_disabled and (health is None or health.health.voltage > 12500 and msg.thermal.batteryPercent < 40):
+    charging_disabled = False
+    os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
+  elif not charging_disabled and (msg.thermal.batteryPercent > 80 or (health is not None and health.health.voltage < 11800 and not should_start)):
+    charging_disabled = True
+    os.system('echo "0" > /sys/class/power_supply/battery/charging_enabled')
+  elif msg.thermal.batteryCurrent < 0 and msg.thermal.batteryPercent > 80:
+    charging_disabled = True
+    os.system('echo "0" > /sys/class/power_supply/battery/charging_enabled')
+
+  return charging_disabled
 
 def set_offroad_alert_if_changed(offroad_alert: str, show_alert: bool, extra_text: Optional[str]=None):
   if prev_offroad_states.get(offroad_alert, None) == (show_alert, extra_text):
@@ -176,6 +195,7 @@ def thermald_thread():
   current_filter = FirstOrderFilter(0., CURRENT_TAU, DT_TRML)
   cpu_temp_filter = FirstOrderFilter(0., CPU_TEMP_TAU, DT_TRML)
   pandaState_prev = None
+  charging_disabled = False
   should_start_prev = False
   handle_fan = None
   is_uno = False
@@ -367,6 +387,15 @@ def thermald_thread():
       if off_ts is None:
         off_ts = sec_since_boot()
 
+    charging_disabled = check_car_battery_voltage(should_start, health, charging_disabled, msg)
+
+    if msg.thermal.batteryCurrent > 0:
+      msg.thermal.batteryStatus = "Discharging"
+    else:
+      msg.thermal.batteryStatus = "Charging"
+
+    
+    msg.thermal.chargingDisabled = charging_disabled
     # Offroad power monitoring
     power_monitor.calculate(pandaState)
     msg.deviceState.offroadPowerUsageUwh = power_monitor.get_power_used()
@@ -389,6 +418,7 @@ def thermald_thread():
     msg.deviceState.thermalStatus = thermal_status
     pm.send("deviceState", msg)
 
+    print(msg)
     set_offroad_alert_if_changed("Offroad_ChargeDisabled", (not usb_power))
 
     should_start_prev = should_start
