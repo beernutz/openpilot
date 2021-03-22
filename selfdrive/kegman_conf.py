@@ -140,7 +140,7 @@ class kegman_conf():
 	
       if "cameraOffset" not in self.config:
 	    self.config.update({"cameraOffset":"0.05"})
-	    self.element_updated - True
+	    self.element_updated = True
 	
       if self.element_updated:
         print("updated")
