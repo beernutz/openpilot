@@ -55,12 +55,11 @@ static void ui_init_vision(UIState *s) {
 
 void ui_init(UIState *s) {
   s->sm = new SubMaster({"modelV2", "controlsState", "uiLayoutState", "liveCalibration", "radarState", "deviceState", "roadCameraState", "liveLocationKalman",
-                         "pandaState", "carParams", "driverState", "driverMonitoringState", "sensorEvents", "carState", "ubloxGnss", "gpsLocationExternal"});
+                         "pandaState", "carParams", "driverState", "driverMonitoringState", "sensorEvents", "carState", "ubloxGnss", "gpsLocationExternal",
 #ifdef QCOM2
     "roadCameraState",
 #endif
   });
->>>>>>> 55c44bf3... openpilot v0.8.3 release
 
   s->scene.started = false;
   s->status = STATUS_OFFROAD;
