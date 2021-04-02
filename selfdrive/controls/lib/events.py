@@ -259,6 +259,8 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "But Kegman re-enabled it.  Enjoy.",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
+  },
+
   EventName.dashcamMode: {
     ET.PERMANENT: Alert(
       "Dashcam Mode",
