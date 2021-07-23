@@ -122,6 +122,10 @@ class kegman_conf():
         self.config.update({"CruiseDelta":"8"})
         self.element_updated = True
 
+      if "CruiseOffset" not in self.config:
+        self.config.update({"CruiseOffset":"0"})
+        self.element_updated = True
+
       if "CruiseEnableMin" not in self.config:
         self.config.update({"CruiseEnableMin":"40"})
         self.element_updated = True
@@ -153,7 +157,7 @@ class kegman_conf():
                      "steerRatio":"-1", "steerRateCost":"-1", "slowOnCurves":"0", "Kf":"-1", \
                      "sR_boost":"0", "sR_BP0":"0", "sR_BP1":"0", "sR_time":"1", \
                      "ALCnudgeLess":"0", "ALCminSpeed":"20.1168", "ALCtimer":"2.0", "CruiseDelta":"8", \
-                     "CruiseEnableMin":"40", "epsModded": "0"}
+                     "CruiseOffset":"0","CruiseEnableMin":"40", "epsModded": "0"}
 
 
       self.write_config(self.config)
