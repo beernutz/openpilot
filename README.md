@@ -273,6 +273,8 @@ This file is auto generated in /data/kegman.json so it will remain even when you
 
 - <b>CruiseDelta</b> - (kilometers/hour) How much to increase or decrease the set cruise control speed when you hold the button up or down
 
+- <b>CruiseOffset</b> - (kilometers/hour) [default 0] How much to add to the set of speeds defined by CruiseDelta. With CruiseDelta = 5, the cruise speed will be a multiple of 5, one of {5, 10, ... , 45, 50, ...}. With CruiseOffset = 2 the speeds are now 2 + (a multiple of 5), so {7, 12, ... , 47, 52, ...}.
+
 - <b>CruiseEnableMin</b> - (kilometers/hour) Minimum speed where cruise control can be enabled
 
 - <b>Kf</b> - Feed forward. Lower this if your car oscillates and you've done everything else. It can be lowered to 0.
@@ -367,6 +369,8 @@ Kegman's 2018 Honda Pilot EX-L Settings
 	"AutoHold": "0",
 	
 	"CruiseDelta": "5",
+	
+	"CruiseOffset": "0",
 	
 	"CruiseEnableMin": "40",
 	
