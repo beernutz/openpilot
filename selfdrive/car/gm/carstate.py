@@ -5,7 +5,7 @@ from opendbc.can.can_define import CANDefine
 from opendbc.can.parser import CANParser
 from selfdrive.car.interfaces import CarStateBase
 from selfdrive.car.gm.values import DBC, CAR, AccState, CanBus, \
-                                    CruiseButtons, STEER_THRESHOLD
+                                    CruiseButtons, STEER_THRESHOLD, CAR, FINGERPRINTS
 from selfdrive.kegman_conf import kegman_conf
 kegman = kegman_conf()
 
@@ -28,8 +28,18 @@ class CarState(CarStateBase):
     self.cruiseMain = False
     self.engineRPM = 0
     
-    with open('/data/timout.txt', 'w') as f:
-        f.write(str(self.car_fingerprint))
+    if exists('/data/volt_fingerprint'):
+            with open('/data/volt_fingerprint') as f:
+                fingerprint = f.read()
+            if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
+                with open('/data/volt_fingerprint_matches', 'w') as f:
+                    f.write('yay!')
+            else:
+                with open('/data/volt_fingerprint_no_matches', 'w') as f:
+                    f.write('aww')
+    else:
+        with open('/data/volt_fingerprint_no_file', 'w') as f:
+            f.write('waa?')
 
   def update(self, pt_cp):
     ret = car.CarState.new_message()
