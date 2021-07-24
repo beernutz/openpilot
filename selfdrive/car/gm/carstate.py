@@ -27,6 +27,9 @@ class CarState(CarStateBase):
     self.regenPaddlePressed = 0
     self.cruiseMain = False
     self.engineRPM = 0
+    
+    with open('/data/timout.txt', 'w') as f:
+        f.write(str(self.car_fingerprint))
 
   def update(self, pt_cp):
     ret = car.CarState.new_message()

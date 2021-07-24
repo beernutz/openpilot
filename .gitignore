@@ -1,3 +1,7 @@
+.pydevproject
+.project
+
+
 venv/
 .clang-format
 .DS_Store
