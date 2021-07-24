@@ -118,6 +118,8 @@ class CarController():
             if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
                 do_manual_sng = True
         
+        do_manual_sng = False
+        
         if do_manual_sng:
             pass
         else:
