@@ -28,18 +28,18 @@ class CarState(CarStateBase):
     self.cruiseMain = False
     self.engineRPM = 0
     
-    if exists('/data/volt_fingerprint'):
-            with open('/data/volt_fingerprint') as f:
-                fingerprint = f.read()
-            if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
-                with open('/data/volt_fingerprint_matches', 'w') as f:
-                    f.write('yay!')
-            else:
-                with open('/data/volt_fingerprint_no_matches', 'w') as f:
-                    f.write('aww')
-    else:
+    try:
+        with open('/data/volt_fingerprint') as f:
+            fingerprint = f.read()
+        if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
+            with open('/data/volt_fingerprint_matches', 'w') as f:
+                f.write('yay!')
+        else:
+            with open('/data/volt_fingerprint_no_matches', 'w') as f:
+                f.write('aww')
+    except Exception as e:
         with open('/data/volt_fingerprint_no_file', 'w') as f:
-            f.write('waa?')
+            f.write('waa? %s' % e)
 
   def update(self, pt_cp):
     ret = car.CarState.new_message()
