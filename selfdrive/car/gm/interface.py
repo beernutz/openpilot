@@ -6,7 +6,6 @@ from selfdrive.car.gm.values import CAR, Ecu, ECU_FINGERPRINT, CruiseButtons, \
                                     AccState, FINGERPRINTS
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
-from os import exists, system
 
 FOLLOW_AGGRESSION = 0.15 # (Acceleration/Decel aggression) Lower is more aggressive
 
@@ -93,8 +92,6 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 15.7
       ret.steerRatioRear = 0.
       ret.centerToFront = ret.wheelbase * 0.4  # wild guess
-      if exists('/data/volt_fingerprint'):
-          system('rm -f /data/volt_fingerprint')
       with open('/data/volt_fingerprint','w') as f:
           f.write(str(fingerprint))
 
@@ -139,6 +136,10 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 15.3
       ret.steerRatioRear = 0.
       ret.centerToFront = ret.wheelbase * 0.49
+    
+    if candidate != CAR.VOLT:
+      with open('/data/volt_fingerprint','w') as f:
+        f.write('')
 
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase

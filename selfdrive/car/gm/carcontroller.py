@@ -116,6 +116,8 @@ class CarController():
             with open(filename) as f:
                 fingerprint = f.read()
             if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
+                with open('/data/volt_fingerprint_found', 'w') as f:
+                    f.write('found fingerprint %s' % fingerprint)
                 do_manual_sng = True
         
         do_manual_sng = False
