@@ -6,7 +6,6 @@ from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.gm import gmcan
 from selfdrive.car.gm.values import DBC, AccState, CanBus, CarControllerParams, CAR, FINGERPRINTS
 from opendbc.can.packer import CANPacker
-from os.path import exists
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -112,13 +111,15 @@ class CarController():
         # Manual stop'n'go logic for 2018 Volt
         
         do_manual_sng = False
-        if exists('/data/volt_fingerprint'):
-            with open(filename) as f:
+        try:
+            with open('/data/volt_fingerprint') as f:
                 fingerprint = f.read()
             if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
                 with open('/data/volt_fingerprint_found', 'w') as f:
                     f.write('found fingerprint %s' % fingerprint)
                 do_manual_sng = True
+        except:
+            pass
         
         do_manual_sng = False
         
