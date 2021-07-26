@@ -111,15 +111,24 @@ class CarController():
         # Manual stop'n'go logic for 2018 Volt
         
         do_manual_sng = False
+        
         try:
-            with open('/data/volt_fingerprint') as f:
-                fingerprint = f.read()
-            if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
-                with open('/data/volt_fingerprint_found', 'w') as f:
-                    f.write('found fingerprint %s' % fingerprint)
-                do_manual_sng = True
-        except:
-            pass
+          with open('/data/volt_fingerprint_carcontroller_from_list', 'w') as f:
+            f.write(str(FINGERPRINTS[CAR.VOLT][1]))
+          with open('/data/volt_fingerprint') as f:
+            fingerprint = f.read()
+          if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
+            with open('/data/volt_fingerprint_carcontroller_matches', 'w') as f:
+              f.write('yay!')
+            do_manual_sng = True
+          else:
+            with open('/data/volt_fingerprint_carcontroller_no_matches', 'w') as f:
+              f.write('aww')
+            do_manual_sng = False
+        except Exception as e:
+          with open('/data/volt_fingerprint_carcontroller_no_file', 'w') as f:
+            f.write('waa? %s' % e)
+          do_manual_sng = False
         
         do_manual_sng = False
         

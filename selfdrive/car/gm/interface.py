@@ -93,7 +93,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatioRear = 0.
       ret.centerToFront = ret.wheelbase * 0.4  # wild guess
       with open('/data/volt_fingerprint','w') as f:
-          f.write(str(fingerprint))
+        f.write(str(fingerprint))
 
     elif candidate == CAR.MALIBU:
       # supports stop and go, but initial engage must be above 18mph (which include conservatism)
