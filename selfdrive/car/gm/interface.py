@@ -13,6 +13,17 @@ FOLLOW_AGGRESSION = 0.15 # (Acceleration/Decel aggression) Lower is more aggress
 ButtonType = car.CarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
 
+# checks that all key:item pairs in f1 are present in f2 (not the other way around)
+def fingerprint_match(f1, f2):
+  match = isinstance(f1, dict) and isinstance(f2, dict)
+  for k,v in f1.items():
+    if not match:
+      break
+    m = f2.get(k)
+    if not m or m != v:
+      match = False
+  return match
+
 class CarInterface(CarInterfaceBase):
   @staticmethod
   def compute_gb(accel, speed):
@@ -83,6 +94,8 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.pid.kf = 0.00004   # full torque for 20 deg at 80mph means 0.00007818594
     ret.steerRateCost = 1.0
     ret.steerActuatorDelay = 0.1  # Default delay, not measured yet
+    
+    ret.doManualSNG = False
 
     if candidate == CAR.VOLT:
       # supports stop and go, but initial engage must be above 18mph (which include conservatism)
@@ -92,8 +105,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 15.7
       ret.steerRatioRear = 0.
       ret.centerToFront = ret.wheelbase * 0.4  # wild guess
-      with open('/data/volt_fingerprint','w') as f:
-        f.write(str(fingerprint))
+      ret.doManualSNG = fingerprint_match(fingerprint[0], FINGERPRINTS[CAR.VOLT][1])
 
     elif candidate == CAR.MALIBU:
       # supports stop and go, but initial engage must be above 18mph (which include conservatism)
@@ -136,10 +148,6 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 15.3
       ret.steerRatioRear = 0.
       ret.centerToFront = ret.wheelbase * 0.49
-    
-    if candidate != CAR.VOLT:
-      with open('/data/volt_fingerprint','w') as f:
-        f.write('')
 
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase

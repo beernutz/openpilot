@@ -4,11 +4,10 @@ from common.numpy_fast import interp
 from selfdrive.config import Conversions as CV
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.gm import gmcan
-from selfdrive.car.gm.values import DBC, AccState, CanBus, CarControllerParams, CAR, FINGERPRINTS
+from selfdrive.car.gm.values import DBC, AccState, CanBus, CarControllerParams, CAR
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
-
 
 class CarControllerParams():
   def __init__(self):
@@ -109,39 +108,25 @@ class CarController():
         CS.autoHoldActivated = False
         
         # Manual stop'n'go logic for 2018 Volt
+#         try:
+#           if CS.CP.doManualSNG:
+#             with open('/data/volt_fingerprint_carcontroller_matches', 'w') as f:
+#               f.write('yay!')
+#           else:
+#             with open('/data/volt_fingerprint_carcontroller_no_matches', 'w') as f:
+#               f.write('aww')
+#         except Exception as e:
+#           with open('/data/volt_fingerprint_carcontroller_error', 'w') as f:
+#             f.write('waa? %s' % e)
+            
         
-        do_manual_sng = False
-        
-        try:
-          with open('/data/volt_fingerprint_carcontroller_from_list', 'w') as f:
-            f.write(str(FINGERPRINTS[CAR.VOLT][1]))
-          with open('/data/volt_fingerprint') as f:
-            fingerprint = f.read()
-          if fingerprint == str(FINGERPRINTS[CAR.VOLT][1]):
-            with open('/data/volt_fingerprint_carcontroller_matches', 'w') as f:
-              f.write('yay!')
-            do_manual_sng = True
-          else:
-            with open('/data/volt_fingerprint_carcontroller_no_matches', 'w') as f:
-              f.write('aww')
-            do_manual_sng = False
-        except Exception as e:
-          with open('/data/volt_fingerprint_carcontroller_no_file', 'w') as f:
-            f.write('waa? %s' % e)
-          do_manual_sng = False
-        
-        do_manual_sng = False
-        
-        if do_manual_sng:
-            pass
-        else:
-            # Auto-resume from full stop by resetting ACC control
-            acc_enabled = enabled
-          
-            if standstill and not car_stopping:
-              acc_enabled = False
-          
-            can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, acc_enabled, at_full_stop))
+        # Auto-resume from full stop by resetting ACC control
+        acc_enabled = enabled
+      
+        if standstill and not car_stopping:
+          acc_enabled = False
+      
+        can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, acc_enabled, at_full_stop))
 
    
 
