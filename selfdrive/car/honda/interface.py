@@ -387,8 +387,8 @@ class CarInterface(CarInterfaceBase):
     if self.CS.park_brake:
       events.add(EventName.parkBrake)
 
-    if self.CP.pcmCruise and ret.vEgo < self.CP.minEnableSpeed:
-      events.add(EventName.belowEngageSpeed)
+    #if self.CP.pcmCruise and ret.vEgo < self.CP.minEnableSpeed:
+      #events.add(EventName.belowEngageSpeed)
 
     self.CS.disengageByBrake = self.CS.disengageByBrake or ret.disengageByBrake
 
