@@ -20,6 +20,8 @@ from selfdrive.pandad import get_expected_signature
 from selfdrive.swaglog import cloudlog
 from selfdrive.thermald.power_monitoring import PowerMonitoring
 from selfdrive.version import get_git_branch, terms_version, training_version
+from selfdrive.kegman_conf import kegman_conf
+kegman = kegman_conf()
 
 FW_SIGNATURE = get_expected_signature()
 
@@ -147,13 +149,13 @@ def check_car_battery_voltage(should_start, pandaState, charging_disabled, msg):
   #   - onroad isn't started
   print(pandaState)
   
-  if charging_disabled and (pandaState is None or pandaState.pandaState.voltage > 12500 and msg.deviceState.batteryPercent < 40):
+  if charging_disabled and (pandaState is None or pandaState.pandaState.voltage > (int(kegman.conf['carVoltageMinEonShutdown'])+500)) and msg.deviceState.batteryPercent < int(kegman.conf['battChargeMin'])):
     charging_disabled = False
     os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
-  elif not charging_disabled and (msg.deviceState.batteryPercent > 80 or (pandaState is not None and pandaState.pandaState.voltage < 11800 and not should_start)):
+  elif not charging_disabled and (msg.deviceState.batteryPercent > int(kegman.conf['battChargeMax']) or (pandaState is not None and pandaState.pandaState.voltage < int(kegman.conf['carVoltageMinEonShutdown']) and not should_start)):
     charging_disabled = True
     os.system('echo "0" > /sys/class/power_supply/battery/charging_enabled')
-  elif msg.deviceState.batteryCurrent < 0 and msg.deviceState.batteryPercent > 80:
+  elif msg.deviceState.batteryCurrent < 0 and msg.deviceState.batteryPercent > int(kegman.conf['battChargeMax']):
     charging_disabled = True
     os.system('echo "0" > /sys/class/power_supply/battery/charging_enabled')
 
