@@ -149,7 +149,7 @@ def check_car_battery_voltage(should_start, pandaState, charging_disabled, msg):
   #   - onroad isn't started
   print(pandaState)
   
-  if charging_disabled and (pandaState is None or pandaState.pandaState.voltage > (int(kegman.conf['carVoltageMinEonShutdown'])+500) and msg.deviceState.batteryPercent < int(kegman.conf['battChargeMin'])):
+  if charging_disabled and (pandaState is None or pandaState.pandaState.voltage > (int(kegman.conf['carVoltageMinEonShutdown'])+500)) and msg.deviceState.batteryPercent < int(kegman.conf['battChargeMin']):
     charging_disabled = False
     os.system('echo "1" > /sys/class/power_supply/battery/charging_enabled')
   elif not charging_disabled and (msg.deviceState.batteryPercent > int(kegman.conf['battChargeMax']) or (pandaState is not None and pandaState.pandaState.voltage < int(kegman.conf['carVoltageMinEonShutdown']) and not should_start)):
