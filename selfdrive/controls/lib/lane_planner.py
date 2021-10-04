@@ -65,10 +65,9 @@ class LanePlanner:
     if self.mpc_frame % 200 == 0:
       # live tuning through /data/openpilot/tune.py for laneless toggle
       self.kegman = kegman_conf()
-      self.path_offset = float(self.kegman.conf['cameraOffset'])
       self.mpc_frame = 0
 
-    path_xyz[:,1] -= self.path_offset
+    path_xyz[:,1] -= float(self.kegman.conf['cameraOffset'])
     l_prob, r_prob = self.lll_prob, self.rll_prob
     width_pts = self.rll_y - self.lll_y
     prob_mods = []
