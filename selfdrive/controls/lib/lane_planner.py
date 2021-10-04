@@ -68,7 +68,7 @@ class LanePlanner:
       self.path_offset = float(self.kegman.conf['cameraOffset'])
       self.mpc_frame = 0
 
-    path_xyz[:,1] -= PATH_OFFSET
+    path_xyz[:,1] -= self.path_offset
     l_prob, r_prob = self.lll_prob, self.rll_prob
     width_pts = self.rll_y - self.lll_y
     prob_mods = []
