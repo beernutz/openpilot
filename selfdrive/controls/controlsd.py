@@ -467,8 +467,8 @@ class Controls:
     if len(meta.desirePrediction) and ldw_allowed:
       l_lane_change_prob = meta.desirePrediction[Desire.laneChangeLeft - 1]
       r_lane_change_prob = meta.desirePrediction[Desire.laneChangeRight - 1]
-      l_lane_close = left_lane_visible and (self.sm['modelV2'].laneLines[1].y[0] > -(1.08 + float(self.kegman.conf['cameraOffset']))
-      r_lane_close = right_lane_visible and (self.sm['modelV2'].laneLines[2].y[0] < (1.08 - float(self.kegman.conf['cameraOffset']))
+      l_lane_close = left_lane_visible and (self.sm['modelV2'].laneLines[1].y[0] > -(1.08 + float(self.kegman.conf['cameraOffset'])))
+      r_lane_close = right_lane_visible and (self.sm['modelV2'].laneLines[2].y[0] < (1.08 - float(self.kegman.conf['cameraOffset'])))
 
       CC.hudControl.leftLaneDepart = bool(l_lane_change_prob > LANE_DEPARTURE_THRESHOLD and l_lane_close)
       CC.hudControl.rightLaneDepart = bool(r_lane_change_prob > LANE_DEPARTURE_THRESHOLD and r_lane_close)
