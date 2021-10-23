@@ -75,8 +75,8 @@ class CarInterfaceBase():
     ret.steerRatioRear = 0.  # no rear steering, at least on the listed cars aboveA
     ret.openpilotLongitudinalControl = False
     ret.startAccel = 1.2
-    ret.minSpeedCan = 0.3
-    ret.stoppingDecelRate = 0.2 if Params().get_bool('SmoothStop') else 0.8 # brake_travel/s while trying to stop
+    ret.minSpeedCan = 0.1
+    ret.stoppingDecelRate = 0.05 if Params().get_bool('SmoothStop') else 0.8 # brake_travel/s while trying to stop
     ret.startingAccelRate = 3.2 # brake_travel/s while releasing on restart
     ret.stoppingControl = True
     ret.longitudinalTuning.deadzoneBP = [0.]
