@@ -350,7 +350,7 @@ class CarState(CarStateBase):
     # When user presses distance button on steering wheel. Must be above LKAS button code, cannot be below!
     if self.cruise_setting == 3:
       if cp.vl["SCM_BUTTONS"]["CRUISE_SETTING"] == 0:
-        self.trMode = (self.trMode + 1 ) % 4
+        self.trMode = (self.trMode - 1 ) % 4
 
     self.prev_cruise_setting = self.cruise_setting
     self.cruise_setting = cp.vl["SCM_BUTTONS"]['CRUISE_SETTING']
