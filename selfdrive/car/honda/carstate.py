@@ -209,6 +209,7 @@ class CarState(CarStateBase):
     self.automaticLaneChange = True #TODO: add setting back
     self.shifter_values = can_define.dv[self.gearbox_msg]["GEAR_SHIFTER"]
     self.steer_status_values = defaultdict(lambda: "UNKNOWN", can_define.dv["STEER_STATUS"]["STEER_STATUS"])
+    self.prev_cruise_enabled = False if Params().get_bool('ACCdoesLKAS') else True
 
     self.user_gas, self.user_gas_pressed = 0., 0
     self.brake_switch_prev = 0
@@ -392,6 +393,13 @@ class CarState(CarStateBase):
 
     if ret.cruiseState.enabled == True:
       self.resumeAvailable = True
+
+    if Params().get_bool('ACCdoesLKAS'):
+      if not self.prev_cruise_enabled and ret.cruiseState.enabled:
+        self.lkasEnabled = True
+
+    if Params().get_bool('ACCdoesLKAS'):
+      self.prev_cruise_enabled = ret.cruiseState.enabled
 
     ret.steerError = False
     ret.steerWarning = False

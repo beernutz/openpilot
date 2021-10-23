@@ -79,6 +79,12 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                 "When above 30mph or 48km/h, openpilot will attempt a lane change when the blinkers are activated instead of waiting for the driver to nudge the wheel. Be cautious when using this feature.",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
+
+  toggles.append(new ParamControl("ACCdoesLKAS",
+                                "Honda/Acura: Pressing SET/RES also enables LKAS",
+                                "This change behaves more like stock openpilot where you can use one button to enable everything. Note that once LKAS is on, it will remain on standby until manually disabled or the vehicle is shut off.",
+                                "../assets/offroad/icon_openpilot.png",
+                                this));
                       
   toggles.append(new ParamControl("CommaPedalEnhancements",
                                 "Comma Pedal: Tuning Adjustments",
@@ -86,15 +92,15 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
 
-  toggles.append(new ParamControl("ChillTune",
-                                "Nidec Honda: Chill ACC Tune",
-                                "Some Hondas perform smoother with the lower stock PID tune. The car will follow the set speed less agressively on both the accelerator and brakes. May not react to lead cars fast enough so this tune is optomized for a 2+ bar following distance on the highway to relax.",
-                                "../assets/offroad/icon_openpilot.png",
-                                this));
-
   toggles.append(new ParamControl("SpeedInc",
                                 "Comma Pedal: (+/-) 5 Increments",
                                 "This reverses the default well-known logic of pressing for +1 and holding for +5. Only works with the pedal installed.",
+                                "../assets/offroad/icon_openpilot.png",
+                                this));
+
+  toggles.append(new ParamControl("ChillTune",
+                                "Nidec Honda: Chill ACC Tune",
+                                "Some Hondas perform smoother with the lower stock PID tune. The car will follow the set speed less agressively on both the accelerator and brakes. May not react to lead cars fast enough so this tune is optomized for a 2+ bar following distance on the highway to relax.",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
 
