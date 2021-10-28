@@ -107,7 +107,17 @@ PrimeUserWidget::PrimeUserWidget(QWidget* parent) : QWidget(parent) {
 
   mainLayout->addWidget(pointsWidget);
 
-  mainLayout->addStretch();
+  QWidget *thirdWidget = new QWidget;
+  thirdWidget->setObjectName("primeWidget");
+  QVBoxLayout *thirdLayout = new QVBoxLayout(thirdWidget);
+  thirdLayout->setMargin(0);
+  thirdWidget->setContentsMargins(60, 50, 60, 50);
+
+  QLabel* thirdLabel = new QLabel("Openpilot v0.8.9. \n To engage, press the LKAS button with the vehicle running!");
+  thirdLabel->setStyleSheet("font-size: 41px; font-family: Inter SemiBold;");
+  thirdLayout->addWidget(thirdLabel, 0, Qt::AlignVCenter);
+
+  mainLayout->addWidget(thirdWidget);
 
   // set up API requests
   if (auto dongleId = getDongleId()) {
@@ -133,32 +143,18 @@ PrimeAdWidget::PrimeAdWidget(QWidget* parent) : QFrame(parent) {
   main_layout->setContentsMargins(80, 90, 80, 60);
   main_layout->setSpacing(0);
 
-  QLabel *upgrade = new QLabel("Upgrade Now");
-  upgrade->setStyleSheet("font-size: 75px; font-weight: bold;");
+  QLabel *upgrade = new QLabel("✓ Incognito");
+  upgrade->setStyleSheet("font-size: 75px; font-weight: bold; color: #86FF4E;");
   main_layout->addWidget(upgrade, 0, Qt::AlignTop);
   main_layout->addSpacing(50);
 
-  QLabel *description = new QLabel("Become a comma prime member at connect.comma.ai");
-  description->setStyleSheet("font-size: 60px; font-weight: light; color: white;");
-  description->setWordWrap(true);
+  QLabel *description = new QLabel("Connect via SSH to:\n \n • Export raw footage\n • Directory explorer\n • Remote control\n • View CAN logs\n • Install forks\n • Run terminal");
+  description->setStyleSheet("font-size: 55px; font-weight: light; color: white;");
+  description->setWordWrap(false);
   main_layout->addWidget(description, 0, Qt::AlignTop);
 
   main_layout->addStretch();
-
-  QLabel *features = new QLabel("PRIME FEATURES:");
-  features->setStyleSheet("font-size: 41px; font-weight: bold; color: #E5E5E5;");
-  main_layout->addWidget(features, 0, Qt::AlignBottom);
-  main_layout->addSpacing(30);
-
-  QVector<QString> bullets = {"Remote access", "14 days of storage", "Developer perks"};
-  for (auto &b: bullets) {
-    const QString check = "<b><font color='#465BEA'>✓</font></b> ";
-    QLabel *l = new QLabel(check + b);
-    l->setAlignment(Qt::AlignLeft);
-    l->setStyleSheet("font-size: 50px; margin-bottom: 15px;");
-    main_layout->addWidget(l, 0, Qt::AlignBottom);
-  }
-
+  
   setStyleSheet(R"(
     PrimeAdWidget {
       border-radius: 10px;

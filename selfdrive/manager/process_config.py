@@ -6,7 +6,7 @@ from selfdrive.hardware import EON, TICI, PC
 WEBCAM = os.getenv("USE_WEBCAM") is not None
 
 procs = [
-  DaemonProcess("manage_athenad", "selfdrive.athena.manage_athenad", "AthenadPid"),
+  #DaemonProcess("manage_athenad", "selfdrive.athena.manage_athenad", "AthenadPid"),
   # due to qualcomm kernel bugs SIGKILLing camerad sometimes causes page table corruption
   NativeProcess("camerad", "selfdrive/camerad", ["./camerad"], unkillable=True, driverview=True),
   NativeProcess("clocksd", "selfdrive/clocksd", ["./clocksd"]),
@@ -32,9 +32,9 @@ procs = [
   PythonProcess("radard", "selfdrive.controls.radard"),
   PythonProcess("thermald", "selfdrive.thermald.thermald", persistent=True),
   PythonProcess("timezoned", "selfdrive.timezoned", enabled=TICI, persistent=True),
-  PythonProcess("tombstoned", "selfdrive.tombstoned", enabled=not PC, persistent=True),
-  PythonProcess("updated", "selfdrive.updated", enabled=not PC, persistent=True),
-  PythonProcess("uploader", "selfdrive.loggerd.uploader", persistent=True),
+  #PythonProcess("tombstoned", "selfdrive.tombstoned", enabled=not PC, persistent=True),
+  #PythonProcess("updated", "selfdrive.updated", enabled=not PC, persistent=True),
+  #PythonProcess("uploader", "selfdrive.loggerd.uploader", persistent=True),
 
   # EON only
   PythonProcess("rtshield", "selfdrive.rtshield", enabled=EON),
