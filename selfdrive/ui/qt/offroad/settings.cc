@@ -81,7 +81,7 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                 this));
 
   toggles.append(new ParamControl("ACCdoesLKAS",
-                                "Honda/Acura: Pressing SET/RES also enables LKAS",
+                                "Honda: SET enables LKAS",
                                 "This change behaves more like stock openpilot where you can use one button to enable everything. Note that once LKAS is on, it will remain on standby until manually disabled or the vehicle is shut off.",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
@@ -105,7 +105,7 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                 this));
 
   toggles.append(new ParamControl("StoppedHUD",
-                                "Nidec Honda: Stopped Indicator on Dash",
+                                "Nidec Honda: Stopped Indicator",
                                 "On Hondas, stock ACC reads 'stopped' in place of the set speed on the dash when the car becomes stationary behind a lead vehicle. This small visual change attempts to bring that back since stock openpilot longitudinal took it away. Visual change just for cool points.",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
@@ -118,13 +118,13 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
 
 
   toggles.append(new ParamControl("TorqueLimitSound",
-                                "Audible Alerts: Steering Torque Limit",
+                                "Audible Alerts: Torque Limit",
                                 "Enabling this will make a sound effect when the car uses up all of the available steering torque.",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
 
   toggles.append(new ParamControl("CivicSpeedAdjustment",
-                                "Nidec Honda Civic: Speedometer Rounding Fix",
+                                "Nidec Civic: Speed Rounding Fix",
                                 "In MPH, the civic rounds slightly too low. This feature makes openpilot accelerate an extra 0.76% so the two speeds on the dash line up. (No more staying at 69 when set at 70).",
                                 "../assets/offroad/icon_openpilot.png",
                                 this));
