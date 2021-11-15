@@ -36,7 +36,7 @@ PROCS = {
   "./_dmonitoringmodeld": 2.67,
   "selfdrive.thermald.thermald": 2.41,
   "selfdrive.locationd.calibrationd": 2.0,
-  "./_soundd": 2.0,
+  "./_soundd": 1.0,
   "selfdrive.monitoring.dmonitoringd": 1.90,
   "./proclogd": 1.54,
   "selfdrive.logmessaged": 0.2,
@@ -82,6 +82,10 @@ TIMINGS = {
   "driverState": [2.5, 0.35],
   "liveLocationKalman": [2.5, 0.35],
 }
+if EON:
+  TIMINGS.update({
+    "roadCameraState": [2.5, 0.45],
+  })
 if TICI:
   TIMINGS.update({
     "wideRoadCameraState": [1.5, 0.35],
@@ -108,7 +112,7 @@ def check_cpu_usage(first_proc, last_proc):
       cpu_usage = cpu_time / dt * 100.
       if cpu_usage > max(normal_cpu_usage * 1.15, normal_cpu_usage + 5.0):
         # cpu usage is high while playing sounds
-        if proc_name == "./_soundd" and cpu_usage < 25.:
+        if proc_name == "./_soundd" and cpu_usage < 65.:
           continue
         result += f"Warning {proc_name} using more CPU than normal\n"
         r = False
@@ -134,6 +138,7 @@ class TestOnroad(unittest.TestCase):
       cls.lr = list(LogReader(os.path.join(segs[-1], "rlog.bz2")))
       return
 
+    os.environ['REPLAY'] = "1"
     os.environ['SKIP_FW_QUERY'] = "1"
     os.environ['FINGERPRINT'] = "TOYOTA COROLLA TSS2 2019"
     set_params_enabled()
