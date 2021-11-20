@@ -1,5 +1,6 @@
 // ********************* Includes *********************
-//#define PEDAL_USB
+#define PEDAL_USB
+#define DEBUG
 #include "../config.h"
 
 #include "early_init.h"

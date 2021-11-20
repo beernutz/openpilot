@@ -75,16 +75,16 @@ class CarInterfaceBase():
 
     # standard ALC params
     ret.steerControlType = car.CarParams.SteerControlType.torque
-    ret.steerMaxBP = [0.]
-    ret.steerMaxV = [1.]
+    ret.steerMaxBP = [10., 25.]
+    ret.steerMaxV = [1., 1.2]
     ret.minSteerSpeed = 0.
 
     ret.pcmCruise = True     # openpilot's state is tied to the PCM's cruise state on most cars
     ret.minEnableSpeed = -1. # enable is done by stock ACC, so ignore this
     ret.steerRatioRear = 0.  # no rear steering, at least on the listed cars aboveA
     ret.openpilotLongitudinalControl = False
-    ret.minSpeedCan = 0.3
-    ret.startAccel = -0.8
+    ret.minSpeedCan = 0.5
+    ret.startAccel = 0.0
     ret.stopAccel = -2.0
     ret.startingAccelRate = 3.2 # brake_travel/s while releasing on restart
     ret.stoppingDecelRate = 0.8 # brake_travel/s while trying to stop
@@ -125,18 +125,12 @@ class CarInterfaceBase():
       events.add(EventName.wrongCarMode)
     if cs_out.espDisabled:
       events.add(EventName.espDisabled)
-    if cs_out.gasPressed:
-      events.add(EventName.gasPressed)
     if cs_out.stockFcw:
       events.add(EventName.stockFcw)
     if cs_out.stockAeb:
       events.add(EventName.stockAeb)
     if cs_out.vEgo > MAX_CTRL_SPEED:
       events.add(EventName.speedTooHigh)
-    if cs_out.cruiseState.nonAdaptive:
-      events.add(EventName.wrongCruiseMode)
-    if cs_out.brakeHoldActive and self.CP.openpilotLongitudinalControl:
-      events.add(EventName.brakeHold)
 
 
     # Handle permanent and temporary steering faults
@@ -154,10 +148,7 @@ class CarInterfaceBase():
       events.add(EventName.steerUnavailable)
 
     # Disable on rising edge of gas or brake. Also disable on brake when speed > 0.
-    # Optionally allow to press gas at zero speed to resume.
-    # e.g. Chrysler does not spam the resume button yet, so resuming with gas is handy. FIXME!
-    if (cs_out.gasPressed and (not self.CS.out.gasPressed) and cs_out.vEgo > gas_resume_speed) or \
-       (cs_out.brakePressed and (not self.CS.out.brakePressed or not cs_out.standstill)):
+    if cs_out.brakePressed and (not self.CS.out.brakePressed or not cs_out.standstill):
       events.add(EventName.pedalPressed)
 
     # we engage when pcm is active (rising edge)

@@ -152,6 +152,7 @@ struct CarState {
   brake @5 :Float32;      # this is user pedal only
   brakePressed @6 :Bool;  # this is user pedal only
   brakeHoldActive @38 :Bool;
+  regenPressed @39 :Bool; #this is regen button only
 
   # steering wheel
   steeringAngleDeg @7 :Float32;
@@ -166,9 +167,11 @@ struct CarState {
   stockAeb @30 :Bool;
   stockFcw @31 :Bool;
   espDisabled @32 :Bool;
+  lkasEnable @40 :Bool;
 
   # cruise state
   cruiseState @10 :CruiseState;
+  adaptiveCruise @41 :Bool;
 
   # gear
   gearShifter @14 :GearShifter;

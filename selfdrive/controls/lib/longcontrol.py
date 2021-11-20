@@ -8,6 +8,7 @@ from selfdrive.modeld.constants import T_IDXS
 LongCtrlState = car.CarControl.Actuators.LongControlState
 
 STOPPING_TARGET_SPEED_OFFSET = 0.01
+REGEN_THRESHOLD = 0.02
 
 # As per ISO 15622:2018 for all speeds
 ACCEL_MIN_ISO = -3.5 # m/s^2
@@ -55,8 +56,8 @@ class LongControl():
     self.long_control_state = LongCtrlState.off  # initialized to off
     self.pid = PIController((CP.longitudinalTuning.kpBP, CP.longitudinalTuning.kpV),
                             (CP.longitudinalTuning.kiBP, CP.longitudinalTuning.kiV),
-                            rate=1/DT_CTRL,
-                            sat_limit=0.8)
+                             rate=1/DT_CTRL,
+                             sat_limit=0.8)
     self.v_pid = 0.0
     self.last_output_accel = 0.0
 
@@ -97,9 +98,16 @@ class LongControl():
                                                        v_target_future, self.v_pid, output_accel,
                                                        CS.brakePressed, CS.cruiseState.standstill, CP.minSpeedCan)
 
-    if self.long_control_state == LongCtrlState.off or CS.gasPressed:
+    if self.long_control_state == LongCtrlState.off or not CS.adaptiveCruise:
       self.reset(CS.vEgo)
       output_accel = 0.
+    elif CS.regenPressed:
+      self.reset(CS.vEgo)
+      output_accel = REGEN_THRESHOLD
+
+    elif CS.gasPressed:
+      self.reset(v_ego_pid)
+      output_accel = 0.1
 
     # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:

@@ -14,6 +14,7 @@ LAT_MPC_N = 16
 LON_MPC_N = 32
 CONTROL_N = 17
 CAR_ROTATION_RADIUS = 0.0
+REGEN_THRESHOLD = 5
 
 # this corresponds to 80deg/s and 20deg/s steering angle in a toyota corolla
 MAX_CURVATURE_RATES = [0.03762194918267951, 0.003441203371932992]
@@ -85,6 +86,14 @@ def update_v_cruise(v_cruise_kph, buttonEvents, button_timers, enabled, metric):
 
   return v_cruise_kph
 
+def update_v_cruise_regen(v_ego, v_cruise_kph, regen, enabled):
+  if enabled and regen:
+    if (v_ego * CV.MS_TO_KPH + REGEN_THRESHOLD) < v_cruise_kph:
+      v_cruise_kph -= REGEN_THRESHOLD - -v_cruise_kph % 5
+
+  v_cruise_kph = clip(v_cruise_kph, V_CRUISE_MIN, V_CRUISE_MAX)
+
+  return v_cruise_kph
 
 def initialize_v_cruise(v_ego, buttonEvents, v_cruise_last):
   for b in buttonEvents:
