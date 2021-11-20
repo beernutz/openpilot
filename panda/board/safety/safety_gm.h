@@ -195,7 +195,7 @@ static int gm_tx_hook(CANPacket_t *to_send) {
   return tx;
 }
 
-static int gm_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
+static int gm_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);
 
