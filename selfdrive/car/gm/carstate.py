@@ -77,7 +77,9 @@ class CarState(CarStateBase):
 
     ret.brakePressed = ret.brake > 1e-5
     ret.regenPressed = False
-    if self.car_fingerprint == CAR.VOLT or self.car_fingerprint == CAR.BOLT:
+    if self.car_fingerprint == CAR.VOLT:
+      ret.brakePressed = ret.brakePressed or bool(pt_cp.vl["EBCMRegenPaddle"]["RegenPaddle"])
+    elif self.car_fingerprint == CAR.BOLT:
       ret.regenPressed = bool(pt_cp.vl["EBCMRegenPaddle"]["RegenPaddle"])
 
     ret.cruiseState.enabled = self.main_on or ret.adaptiveCruise
