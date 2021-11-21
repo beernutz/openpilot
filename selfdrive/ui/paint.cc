@@ -202,7 +202,9 @@ static void ui_draw_vision_header(UIState *s) {
   NVGpaint gradient = nvgLinearGradient(s->vg, 0, header_h - (header_h / 2.5), 0, header_h,
                                         nvgRGBAf(0, 0, 0, 0.45), nvgRGBAf(0, 0, 0, 0));
   ui_fill_rect(s->vg, {0, 0, s->fb_w , header_h}, gradient);
-  ui_draw_vision_maxspeed(s);
+  if (s->scene.longitudinal_control) {
+      ui_draw_vision_maxspeed(s);
+  }
   ui_draw_vision_speed(s);
   ui_draw_vision_event(s);
 }
