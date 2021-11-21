@@ -157,9 +157,9 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.kiBP = [0., 20.]
     ret.longitudinalTuning.kiV = [0.045, 0.055]
 
-    if ret.enableGasInterceptor:
-      ret.gasMaxBP = [5.0, 10.0]
-      ret.gasMaxV =  [0.5, 0.7]
+    #if ret.enableGasInterceptor:
+    #  ret.gasMaxBP = [5.0, 10.0]
+    #  ret.gasMaxV =  [0.5, 0.7]
 
     ret.steerLimitTimer = 0.4
     ret.radarTimeStep = 0.0667  # GM radar runs at 15Hz instead of standard 20Hz
