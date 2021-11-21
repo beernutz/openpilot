@@ -74,7 +74,6 @@ class CarInterface(CarInterfaceBase):
       ret.minEnableSpeed = -1
       ret.minSteerSpeed = 5
       ret.mass = 1625. + STD_CARGO_KG
-      ret.safetyModel = car.CarParams.SafetyModel.gm
       ret.wheelbase = 2.60096
       ret.steerRatio = 16.8
       ret.steerRatioRear = 0.
@@ -143,7 +142,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.13, 0.24], [0.01, 0.02]]
       ret.lateralTuning.pid.kf = 0.000045
       tire_stiffness_factor = 1.0
-            
+
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
     ret.rotationalInertia = scale_rot_inertia(ret.mass, ret.wheelbase)
