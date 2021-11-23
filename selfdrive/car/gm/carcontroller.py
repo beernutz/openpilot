@@ -1,8 +1,8 @@
 from cereal import car
 from common.realtime import DT_CTRL
-from common.numpy_fast import interp
+from common.numpy_fast import interp, clip
 from selfdrive.config import Conversions as CV
-from selfdrive.car import apply_std_steer_torque_limits
+from selfdrive.car import apply_std_steer_torque_limits, create_gas_command
 from selfdrive.car.gm import gmcan
 from selfdrive.car.gm.values import DBC, CanBus, CarControllerParams
 from opendbc.can.packer import CANPacker
