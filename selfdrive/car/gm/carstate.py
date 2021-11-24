@@ -134,7 +134,7 @@ class CarState(CarStateBase):
       ("EBCMBrakePedalPosition", 100),
     ]
 
-    if CP.carFingerprint == CAR.VOLT:
+    if CP.carFingerprint == CAR.VOLT or CP.carFingerprint == CAR.BOLT:
       signals += [
         ("RegenPaddle", "EBCMRegenPaddle", 0),
       ]
