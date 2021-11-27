@@ -7,7 +7,7 @@ from selfdrive.modeld.constants import T_IDXS
 
 LongCtrlState = car.CarControl.Actuators.LongControlState
 
-STOPPING_TARGET_SPEED_OFFSET = 0.01
+STOPPING_TARGET_SPEED_OFFSET = 1.0
 REGEN_THRESHOLD = 0.02
 
 # As per ISO 15622:2018 for all speeds
