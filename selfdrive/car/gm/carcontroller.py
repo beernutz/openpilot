@@ -82,7 +82,7 @@ class CarController():
     # alarming orange icon when approaching torque limit.
     # If not sent again, LKA icon disappears in about 5 seconds.
     # Conveniently, sending camera message periodically also works as a keepalive.
-    lka_active = lkas_enabled == 1
+    lka_active = CS.lkas_status == 1
     lka_critical = lka_active and abs(actuators.steer) > 0.9
     lka_icon_status = (lka_active, lka_critical)
     if frame % P.CAMERA_KEEPALIVE_STEP == 0 or lka_icon_status != self.lka_icon_status_last:
