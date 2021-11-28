@@ -25,7 +25,7 @@ class LatControlPID():
     angle_steers_des = angle_steers_des_no_offset + params.angleOffsetDeg
 
     pid_log.angleError = angle_steers_des - CS.steeringAngleDeg
-    if CS.vEgo < 0.3 or not active:
+    if CS.vEgo < 0.3 or not active or not CS.lkasEnable:
       output_steer = 0.0
       pid_log.active = False
       self.pid.reset()

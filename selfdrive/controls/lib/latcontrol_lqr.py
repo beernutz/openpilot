@@ -63,7 +63,7 @@ class LatControlLQR():
     e = steering_angle_no_offset - angle_steers_k
     self.x_hat = self.A.dot(self.x_hat) + self.B.dot(CS.steeringTorqueEps / torque_scale) + self.L.dot(e)
 
-    if CS.vEgo < 0.3 or not active:
+    if CS.vEgo < 0.3 or not active or not CS.lkasEnable:
       lqr_log.active = False
       lqr_output = 0.
       output_steer = 0.
