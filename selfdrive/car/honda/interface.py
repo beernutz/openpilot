@@ -80,8 +80,6 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kiV = [0.18, 0.12]
       ret.longitudinalTuning.kdBP = [0., 5., 35.]
       ret.longitudinalTuning.kdV = [1.6, 1.2, 0.5]
-      ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
-      ret.startingAccelRate = 6.0  # release brakes fast
 
     eps_modified = False
     for fw in car_fw:
