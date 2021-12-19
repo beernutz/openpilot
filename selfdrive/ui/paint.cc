@@ -114,45 +114,46 @@ static void ui_draw_line(UIState *s, const line_vertices_data &vd, NVGcolor *col
   nvgFill(s->vg);
 }
 
-static void ui_draw_track(UIState *s, const line_vertices_data &vd)
-{
+static void ui_draw_vision_lane_lines(UIState *s) {
   const UIScene &scene = s->scene;
-  if (vd.cnt == 0) return;
-
-  nvgBeginPath(s->vg);
-  nvgMoveTo(s->vg, vd.v[0].x, vd.v[0].y);
-  for (int i=1; i<vd.cnt; i++) {
-    nvgLineTo(s->vg, vd.v[i].x, vd.v[i].y);
-  }
-  nvgClosePath(s->vg);
-
   NVGpaint track_bg;
-  if (s->scene.controls_state.getEnabled()) {
-    if (s->scene.steeringPressed) {
+  if (!scene.end_to_end) {
+    // paint lanelines
+    for (int i = 0; i < std::size(scene.lane_line_vertices); i++) {
+      NVGcolor color = nvgRGBAf(1.0, 1.0, 1.0, scene.lane_line_probs[i]);
+      ui_draw_line(s, scene.lane_line_vertices[i], &color, nullptr);
+    }
+
+    // paint road edges
+    for (int i = 0; i < std::size(scene.road_edge_vertices); i++) {
+      NVGcolor color = nvgRGBAf(1.0, 0.0, 0.0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0));
+      ui_draw_line(s, scene.road_edge_vertices[i], &color, nullptr);
+    }
+  }
+
+  // paint path
+  if (s->scene.enabled) {
+      if (s->scene.steeringPressed) {
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
         nvgRGBA(0, 191, 255, 255), nvgRGBA(0, 95, 128, 50));
-    } else if (!scene.lateralPlan.lanelessModeStatus) {
+    } else {
       int torque_scale = (int)fabs(510*(float)s->scene.pidStateOutput);
       int red_lvl = fmin(255, torque_scale);
       int green_lvl = fmin(255, 510-torque_scale);
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
         nvgRGBA(          red_lvl,            green_lvl,  0, 255),
         nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
-    } else { // differentiate laneless mode color (Grace blue)
-      int torque_scale = (int)fabs(510*(float)s->scene.pidStateOutput);
-      int red_lvl = fmin(255, torque_scale);
-      int green_lvl = fmin(255, 510-torque_scale);
-      track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
-        nvgRGBA(          red_lvl,            green_lvl,  0, 255),
-        nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
-  } else {
+    }
+  } else if (!scene.end_to_end) {
     // Draw white vision track
     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
-                                COLOR_WHITE_ALPHA(150), COLOR_WHITE_ALPHA(100));
+                                        COLOR_WHITE, COLOR_WHITE_ALPHA(0));
+  } else {
+    // Draw end-to-end red vision track
+    track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
+                                          COLOR_RED, COLOR_RED_ALPHA(0));
   }
-
-  nvgFillPaint(s->vg, track_bg);
-  nvgFill(s->vg);
+  ui_draw_line(s, scene.track_vertices, nullptr, &track_bg);
 }
 
 static void draw_vision_frame(UIState *s) {
@@ -178,52 +179,6 @@ static void draw_vision_frame(UIState *s) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (const void *)0);
   glDisableVertexAttribArray(0);
   glBindVertexArray(0);
-}
-
-// sunnyhaibin's colored lane line
-static void ui_draw_vision_lane_lines(UIState *s) {
-  const UIScene &scene = s->scene;
-  float red_lvl = 0.0;
-  float green_lvl = 0.0;
-  //if (!scene.end_to_end) {
-  if (s->scene.controls_state.getEnabled()) {
-    if (!scene.lateralPlan.lanelessModeStatus) {
-      // paint lanelines
-      for (int i = 0; i < std::size(scene.lane_line_vertices); i++) {
-        red_lvl = 0.0;
-        green_lvl = 0.0;
-        if (scene.lane_line_probs[i] > 0.4){
-          red_lvl = 1.0 - (scene.lane_line_probs[i] - 0.4) * 2.5;
-          green_lvl = 1.0 ;
-        }
-        else {
-          red_lvl = 1.0 ;
-          green_lvl = 1.0 - (0.4 - scene.lane_line_probs[i]) * 2.5;
-        }
-        NVGcolor lane_color = nvgRGBAf(red_lvl, green_lvl, 0, 1);
-        ui_draw_line(s, scene.lane_line_vertices[i], &lane_color, nullptr);
-      }
-
-      // paint road edges
-      for (int i = 0; i < std::size(scene.road_edge_vertices); i++) {
-        NVGcolor color = nvgRGBAf(1.0, 0.0, 0.0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0));
-        ui_draw_line(s, scene.road_edge_vertices[i], &color, nullptr);
-      }
-    }
-/***
-    track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
-                                        COLOR_WHITE, COLOR_WHITE_ALPHA(0));
-  } else {
-    // Draw end-to-end red vision track
-    track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
-                                          COLOR_RED, COLOR_RED_ALPHA(0));
-  }
-
-  // paint path
-  ui_draw_line(s, scene.track_vertices, nullptr, &track_bg);
-***/
-  }
-  ui_draw_track(s, scene.track_vertices);
 }
 
 // Draw all world space objects.
