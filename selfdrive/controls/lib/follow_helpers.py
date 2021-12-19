@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from common.numpy_fast import interp
 
 # Variables that change braking profiles
-ONE_BAR_DISTANCE = 0.8
-TWO_BAR_DISTANCE = 1.2
-THREE_BAR_DISTANCE = 1.8
-FOUR_BAR_DISTANCE = 2.3
+ONE_BAR_DISTANCE = 0.7
+TWO_BAR_DISTANCE = 0.9
+THREE_BAR_DISTANCE = 1.2
+FOUR_BAR_DISTANCE = 1.8
 STOPPING_DISTANCE = 0.5
 SNG_DISTANCE = 1.8
 SNG_SPEED = 8
@@ -43,12 +43,12 @@ TWO_BAR_PROFILE = FollowProfile(
   vEgoProfiles=(
     vEgoProfile(vEgo=SNG_SPEED, v_rel=[0], TR=[SNG_DISTANCE]),
     vEgoProfile(vEgo=CITY_SPEED, v_rel=[-0.1, 1.5], TR=[TWO_BAR_DISTANCE, 2.1]),
-    vEgoProfile(vEgo=HIGHWAY_SPEED, v_rel=[0.0, 1.8], TR=[TWO_BAR_DISTANCE, TWO_BAR_DISTANCE+0.3]),))
+    vEgoProfile(vEgo=HIGHWAY_SPEED, v_rel=[0.0, 1.5], TR=[TWO_BAR_DISTANCE, TWO_BAR_DISTANCE+0.3]),))
 THREE_BAR_PROFILE = FollowProfile(
   vEgoProfiles=(
     vEgoProfile(vEgo=SNG_SPEED, v_rel=[0], TR=[SNG_DISTANCE]),
     vEgoProfile(vEgo=CITY_SPEED,  v_rel=[0, 3.0], TR=[THREE_BAR_DISTANCE, 2.1]),
-    vEgoProfile(vEgo=HIGHWAY_SPEED, v_rel=[0.0, 4.0], TR=[THREE_BAR_DISTANCE, THREE_BAR_DISTANCE+0.1]),))
+    vEgoProfile(vEgo=HIGHWAY_SPEED, v_rel=[0.0, 2.0], TR=[THREE_BAR_DISTANCE, THREE_BAR_DISTANCE+0.1]),))
 FOUR_BAR_PROFILE = FollowProfile(
   vEgoProfiles=(
     vEgoProfile(vEgo=SNG_SPEED, v_rel=[0], TR=[SNG_DISTANCE]),
