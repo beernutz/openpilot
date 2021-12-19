@@ -126,25 +126,26 @@ static void ui_draw_track(UIState *s, const line_vertices_data &vd)
   }
   nvgClosePath(s->vg);
 
-  int steerOverride = s->scene.car_state.getSteeringPressed();
-  int red_lvl = 0;
-  int green_lvl = 0;
-
   NVGpaint track_bg;
   if (s->scene.controls_state.getEnabled()) {
-    if (steerOverride) {
+    if (s->scene.steeringPressed) {
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
-        COLOR_BLACK_ALPHA(80), COLOR_BLACK_ALPHA(20));
+        nvgRGBA(0, 191, 255, 255), nvgRGBA(0, 95, 128, 50));
     } else if (!scene.lateralPlan.lanelessModeStatus) {
-        red_lvl = 0;
-        green_lvl = 255;
-        track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
-          nvgRGBA(red_lvl, green_lvl, 0, 250), nvgRGBA(red_lvl, green_lvl, 0, 50));
+      int torque_scale = (int)fabs(510*(float)s->scene.pidStateOutput);
+      int red_lvl = fmin(255, torque_scale);
+      int green_lvl = fmin(255, 510-torque_scale);
+      track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
+        nvgRGBA(          red_lvl,            green_lvl,  0, 255),
+        nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
+    }
     } else { // differentiate laneless mode color (Grace blue)
-        red_lvl = 0;
-        green_lvl = 255;
-        track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
-          nvgRGBA(red_lvl, green_lvl, 0, 250), nvgRGBA(red_lvl, green_lvl, 0, 50));
+      int torque_scale = (int)fabs(510*(float)s->scene.pidStateOutput);
+      int red_lvl = fmin(255, torque_scale);
+      int green_lvl = fmin(255, 510-torque_scale);
+      track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
+        nvgRGBA(          red_lvl,            green_lvl,  0, 255),
+        nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
     }
   } else {
     // Draw white vision track
