@@ -138,7 +138,6 @@ static void ui_draw_track(UIState *s, const line_vertices_data &vd)
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
         nvgRGBA(          red_lvl,            green_lvl,  0, 255),
         nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
-    }
     } else { // differentiate laneless mode color (Grace blue)
       int torque_scale = (int)fabs(510*(float)s->scene.pidStateOutput);
       int red_lvl = fmin(255, torque_scale);
@@ -146,7 +145,6 @@ static void ui_draw_track(UIState *s, const line_vertices_data &vd)
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
         nvgRGBA(          red_lvl,            green_lvl,  0, 255),
         nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
-    }
   } else {
     // Draw white vision track
     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
