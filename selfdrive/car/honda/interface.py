@@ -81,8 +81,10 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kdBP = [0., 5., 35.]
       ret.longitudinalTuning.kdV = [1.6, 1.2, 0.5]
     else:
-      ret.longitudinalTuning.kdBP = [0., 5., 35.]
-      ret.longitudinalTuning.kdV = [2.5, 1.2, 0.5]
+      ret.longitudinalTuning.kpBP = [0., 5., 11., 24., 37.] # 0, 12, 25, 55, 85 mph, 
+      ret.longitudinalTuning.kpV = [1.2, 1.7, 1.8, 2.0, 2.1]
+      ret.longitudinalTuning.kiBP = [0., 35.]
+      ret.longitudinalTuning.kiV = [0.54, 0.36]
       
     eps_modified = False
     for fw in car_fw:
@@ -103,7 +105,15 @@ class CarInterface(CarInterfaceBase):
         # modified filter output values:  0x009F, 0x0108, 0x0108, 0x0108, 0x0108, 0x0108, 0x0108, 0x0400, 0x0480
         # note: max request allowed is 4096, but request is capped at 3840 in firmware, so modifications result in 2x max
         ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560, 8000], [0, 2560, 3840]]
-        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.1]]
+        ret.lateralTuning.init('lqr')
+        ret.lateralTuning.lqr.scale = 1200.0
+        ret.lateralTuning.lqr.ki = 0.09
+        ret.lateralTuning.lqr.a = [0., 1., -0.22619643, 1.21822268]
+        ret.lateralTuning.lqr.b = [-1.92006585e-04, 3.95603032e-05]
+        ret.lateralTuning.lqr.c = [1., 0.]
+        ret.lateralTuning.lqr.k = [-110.73572306, 451.22718255]
+        ret.lateralTuning.lqr.l = [0.3233671, 0.3185757]
+        ret.lateralTuning.lqr.dcGain = 0.002737852961363602
       else:
         ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560], [0, 2560]]
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[1.1], [0.33]]
