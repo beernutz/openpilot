@@ -818,9 +818,6 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
     lead1 @2;
     lead2 @3;
     e2e @4;
-    cruiseGas @5;
-    cruiseCoast @6;
-    cruiseBrake @7;
   }
 
   # deprecated
