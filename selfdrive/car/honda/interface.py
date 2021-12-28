@@ -29,7 +29,9 @@ class CarInterface(CarInterfaceBase):
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
     # NIDECs don't allow acceleration near cruise_speed,
     # so limit limits of pid to prevent windup
-    if not CP.enableGasInterceptor:
+    if CP.enableGasInterceptor:
+      return ACCEL_MIN, ACCEL_MAX
+    else:
       ACCEL_MAX_VALS = [ACCEL_MAX, 0.2]
       ACCEL_MAX_BP = [cruise_speed - 2., cruise_speed - .2]
       return ACCEL_MIN, interp(current_speed, ACCEL_MAX_BP, ACCEL_MAX_VALS)
