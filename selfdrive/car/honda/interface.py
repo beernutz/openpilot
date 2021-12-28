@@ -29,9 +29,14 @@ class CarInterface(CarInterfaceBase):
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
     # NIDECs don't allow acceleration near cruise_speed,
     # so limit limits of pid to prevent windup
-    ACCEL_MAX_VALS = [ACCEL_MAX, 3.2] if CP.enableGasInterceptor else [ACCEL_MAX, 0.4]
-    ACCEL_MAX_BP = [cruise_speed - 2., cruise_speed - .2]
-    return ACCEL_MIN, interp(current_speed, ACCEL_MAX_BP, ACCEL_MAX_VALS)
+    if CP.enableGasInterceptor:
+      ACCEL_MAX_VALS = [ACCEL_MAX, 0.3]
+      ACCEL_MAX_BP = [cruise_speed - 0.5, cruise_speed - 0.01]
+      return ACCEL_MIN, interp(current_speed, ACCEL_MAX_BP, ACCEL_MAX_VALS)
+    else:
+      ACCEL_MAX_VALS = [ACCEL_MAX, 0.2]
+      ACCEL_MAX_BP = [cruise_speed - 2., cruise_speed - .2]
+      return ACCEL_MIN, interp(current_speed, ACCEL_MAX_BP, ACCEL_MAX_VALS)
 
   @staticmethod
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=[]):  # pylint: disable=dangerous-default-value
@@ -80,9 +85,6 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kiV = [0.18, 0.12]
       ret.longitudinalTuning.kdBP = [0., 5., 35.]
       ret.longitudinalTuning.kdV = [1.6, 1.2, 0.5]
-    else:
-      ret.longitudinalTuning.kdBP = [0., 5., 35.]
-      ret.longitudinalTuning.kdV = [2.5, 1.2, 0.5]
       
     eps_modified = False
     for fw in car_fw:
