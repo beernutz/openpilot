@@ -236,7 +236,7 @@ static void update_state(UIState *s) {
   }
   scene.started = sm["deviceState"].getDeviceState().getStarted() && scene.ignition;
   if (sm.updated("carControl")) {
-    s->scene.computerBraking = sm["carControl"].getCarControl().getActuators().getBrake() > 0;
+    s->scene.computerBraking = sm["carControl"].getCarControl().getActuators().getAccel() < -0.1;
   }  
   if (sm.updated("lateralPlan")) {
     scene.lateral_plan = sm["lateralPlan"].getLateralPlan();
