@@ -125,6 +125,11 @@ class CarController():
     # *** apply brake hysteresis ***
     pre_limit_brake, self.braking, self.brake_steady = actuator_hystereses(brake, self.braking, self.brake_steady, CS.out.vEgo, CS.CP.carFingerprint)
 
+    # *** no output if not enabled ***
+    if not enabled and CS.out.cruiseState.enabled:
+      # send pcm acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
+      pcm_cancel_cmd = True
+      
     # *** rate limit after the enable check ***
     self.brake_last = rate_limit(pre_limit_brake, self.brake_last, -2., DT_CTRL)
 
@@ -230,9 +235,6 @@ class CarController():
           pump_on, self.last_pump_on_state = brake_pump_hysteresis(apply_brake, self.apply_brake_last, self.last_pump_on_state, ts)
           # Do NOT send the cancel command if we are using the pedal. Sending cancel causes the car firmware to
           # turn the brake pump off, and we don't want that. Stock ACC does not send the cancel cmd when it is braking.
-
-        if CS.CP.enableGasInterceptor:
-          pcm_cancel_cmd = False
 
           pcm_override = True
           can_sends.append(hondacan.create_brake_command(self.packer, apply_brake, pump_on,
