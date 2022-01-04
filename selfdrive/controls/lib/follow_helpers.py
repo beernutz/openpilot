@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from common.numpy_fast import interp
 
 # Variables that change braking profiles
-ONE_BAR_DISTANCE = 0.7
+ONE_BAR_DISTANCE = 0.8
 TWO_BAR_DISTANCE = 0.9
 THREE_BAR_DISTANCE = 1.2
 FOUR_BAR_DISTANCE = 1.8
