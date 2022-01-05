@@ -20,8 +20,8 @@ from common.params import Params
 LON_MPC_STEP = 0.2  # first step is 0.2s
 AWARENESS_DECEL = -0.2     # car smoothly decel at .2m/s^2 when user is distracted
 A_CRUISE_MIN = -3.2
-A_CRUISE_MAX_VALS = [1.2, 1.7, 1.8, 2.0, 2.1] if Params().get_bool('CommaPedalEnhancements') else [1.2, 1.2, 0.8, 0.6]
-A_CRUISE_MAX_BP = [0., 5., 11., 24., 37.] if Params().get_bool('CommaPedalEnhancements') else [0., 15., 25., 40.]
+A_CRUISE_MAX_VALS = [1.2, 1.1, 0.7, 0.6] if Params().get_bool('CommaPedalEnhancements') else [1.2, 1.2, 0.8, 0.6]
+A_CRUISE_MAX_BP = [0., 15., 25., 40.] if Params().get_bool('CommaPedalEnhancements') else [0., 15., 25., 40.]
 
 # Lookup table for turns
 _A_TOTAL_MAX_V = [1.7, 3.2]
