@@ -80,7 +80,7 @@ class CarInterface(CarInterfaceBase):
       # Improved longitudinal tune settings from sshane
       ret.longitudinalTuning.deadzoneBP = [0.]
       ret.longitudinalTuning.deadzoneV = [0.]
-      ret.longitudinalTuning.KpBP = [0., 5., 35.]
+      ret.longitudinalTuning.kpBP = [0., 5., 35.]
       ret.longitudinalTuning.kpV = [3.2, 2.0, 1.2]
       ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
       ret.longitudinalTuning.kiV = [.35, .23, .20, .17, .1]
