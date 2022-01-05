@@ -85,8 +85,6 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kiV = [0.]
       ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
       ret.startingAccelRate = 20.  # release brakes fast
-      ret.longitudinalActuatorDelayLowerBound = 0.3
-      ret.longitudinalActuatorDelayUpperBound = 0.3
       
     eps_modified = False
     for fw in car_fw:
