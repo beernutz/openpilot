@@ -80,9 +80,10 @@ class CarInterface(CarInterfaceBase):
       # Improved longitudinal tune settings from sshane
       ret.longitudinalTuning.deadzoneBP = [0.]
       ret.longitudinalTuning.deadzoneV = [0.]
-      ret.longitudinalTuning.kpV = [0.5, 0.5, 0.25]
-      ret.longitudinalTuning.kiBP = [0.]
-      ret.longitudinalTuning.kiV = [0.]
+      ret.longitudinalTuning.KpBP = [0., 5., 35.]
+      ret.longitudinalTuning.kpV = [3.2, 2.0, 1.2]
+      ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
+      ret.longitudinalTuning.kiV = [.35, .23, .20, .17, .1]
       ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
       ret.startingAccelRate = 20.  # release brakes fast
       
