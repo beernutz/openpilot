@@ -77,10 +77,14 @@ class CarInterface(CarInterfaceBase):
     # https://github.com/commaai/openpilot/wiki/Tuning#how-the-breakpoint-and-value-lists-work
     # default longitudinal tuning for all hondas
     if Params().get_bool('ChillTune'):
+      ret.longitudinalTuning.deadzoneBP = [0., 9.]
+      ret.longitudinalTuning.deadzoneV = [0., .15]
       ret.longitudinalTuning.kpBP = [0., 5., 35.]
-      ret.longitudinalTuning.kpV = [.9, .6, .375] #smooth aceleration
       ret.longitudinalTuning.kiBP = [0., 35.]
-      ret.longitudinalTuning.kiV = [0.27, 0.18] #smooth aceleration
+      ret.longitudinalTuning.kdBP = [0., 5., 35.]
+      ret.longitudinalTuning.kpV = [3.6 * 0.9, 2.4 * 0.9, 1.5 * 0.9]
+      ret.longitudinalTuning.kiV = [0.54 * 0.8, 0.36 * 0.8]
+      ret.longitudinalTuning.kdV = [0.05, 0.1, 0.3]
       
     eps_modified = False
     for fw in car_fw:
