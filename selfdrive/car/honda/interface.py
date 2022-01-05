@@ -83,8 +83,6 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpV = [0.5, 0.5, 0.25]
       ret.longitudinalTuning.kiBP = [0.]
       ret.longitudinalTuning.kiV = [0.]
-      ret.vEgoStopping = 0.2  # car is near 0.1 to 0.2 when car starts requesting stopping accel
-      ret.vEgoStarting = 0.2  # needs to be > or == vEgoStopping
       ret.startAccel = 0.0  # Toyota requests 0 instantly, then hands control off to some controller
       ret.stopAccel = -2.0  # Toyota requests -0.4 when stopped
       ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
