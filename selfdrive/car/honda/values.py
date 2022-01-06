@@ -20,7 +20,7 @@ class CarControllerParams():
     self.NIDEC_ACCEL_LOOKUP_BP = [-1., 0., .6]
     self.NIDEC_ACCEL_LOOKUP_V = [-4.8, 0., 2.0]
 
-    self.NIDEC_MAX_ACCEL_V = [0.5, 2.4, 1.4, 0.6]
+    self.NIDEC_MAX_ACCEL_V = [0.5, 2.4, 2.2, 2.0]
     self.NIDEC_MAX_ACCEL_BP = [0.0, 4.0, 10., 20.]
 
     self.BOSCH_GAS_LOOKUP_BP = [0., 2.0]  # 2m/s^2
