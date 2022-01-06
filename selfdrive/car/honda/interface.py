@@ -74,15 +74,11 @@ class CarInterface(CarInterfaceBase):
     # https://github.com/commaai/openpilot/wiki/Tuning#how-the-breakpoint-and-value-lists-work
     # default longitudinal tuning for all hondas
     if Params().get_bool('ChillTune'):
-      # Improved longitudinal tune settings from sshane
-      ret.longitudinalTuning.deadzoneBP = [0.]
-      ret.longitudinalTuning.deadzoneV = [0.]
+      # default longitudinal tuning for all hondas
       ret.longitudinalTuning.kpBP = [0., 5., 35.]
-      ret.longitudinalTuning.kpV = [3.2, 2.0, 1.2]
-      ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
-      ret.longitudinalTuning.kiV = [.35, .23, .20, .17, .1]
-      ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
-      ret.startingAccelRate = 20.  # release brakes fast
+      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
+      ret.longitudinalTuning.kiBP = [0., 35.]
+      ret.longitudinalTuning.kiV = [0.12, 0.07]
       
     eps_modified = False
     for fw in car_fw:
