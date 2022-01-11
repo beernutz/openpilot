@@ -160,7 +160,7 @@ def create_ui_commands(packer, pcm_speed, hud, enabled, stopping, car_fingerprin
       }
     else:
       acc_hud_values = {
-        'CRUISE_SPEED': 252 if Params().get_bool('StoppedHUD') and standstill != 0 and hud.car != 0 else hud.v_cruise,
+        'CRUISE_SPEED': 252 if Params().get_bool('StoppedHUD') and standstill != 0 and hud.car != 0 else 255,
         'PCM_SPEED': pcm_speed * CV.MS_TO_KPH,
         'PCM_GAS': hud.pcm_accel,
         'ENABLE_MINI_CAR': 1,
